@@ -361,7 +361,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
     }
 
     public void updateLearnRate(int time, double exp, double realValue){
-        double ganma = 0.1;
+        double ganma = 0.2;
         double rate;
         double orate = estimator.getLearnRate();
         double exp2;
