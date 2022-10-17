@@ -33,7 +33,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
     Random rand;
     IEnvironment environment;
     double alpha = 0.1;
-    double beta = 0.1;
+    double beta = 0.05;
     int scale = 50;
     int[][] agentPosition = new int[2*scale+1][2*scale+1];
     List<Integer> excludeNodes;
@@ -349,7 +349,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 		realValue *= totalSize	;
         learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
-        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue/**learnRate*/)) * estimator.getCorrection();//correctionの更新
+        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue*learnRate)) * estimator.getCorrection();//correctionの更新
         
         if(!(correction > 0)){
             correction = 0.1;
@@ -361,7 +361,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
     }
 
     public void updateLearnRate(int time, double exp, double realValue){
-        double ganma = 0.2;
+        double ganma = 0.1;
         double rate;
         double orate = estimator.getLearnRate();
         double exp2;

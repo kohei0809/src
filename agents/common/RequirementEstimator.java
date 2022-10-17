@@ -21,7 +21,7 @@ public class RequirementEstimator {
 	double correction;
 	boolean change;
 	double learnRate;
-	double beta = 0.1;
+	double beta = 0.05;
 	
 	LogWriter2 expLogger;
 
@@ -77,7 +77,7 @@ public class RequirementEstimator {
 		
 		//estimation = sum / nodes.size();
 		estimation *= totalSize;
-		if ((estimation / correction)*learnRate < requirement){
+		if ((estimation * learnRate / correction) < requirement){
 			reached = true;
 		}
 
@@ -113,7 +113,7 @@ public class RequirementEstimator {
 		
 		//estimation = sum;
 		
-		if ((estimation / correction)*learnRate < requirement){
+		if ((estimation *learnRate / correction) < requirement){
 			reached = true;
 		}
 	}
