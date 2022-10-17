@@ -349,7 +349,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 		realValue *= totalSize	;
         learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
-        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue*learnRate)) * estimator.getCorrection();//correctionの更新
+        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue/**learnRate*/)) * estimator.getCorrection();//correctionの更新
         
         if(!(correction > 0)){
             correction = 0.1;
