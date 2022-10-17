@@ -21,7 +21,7 @@ public class RequirementEstimator {
 	double correction;
 	boolean change;
 	double learnRate;
-	double beta = 0.125;
+	double beta = 0.1;
 	
 	LogWriter2 expLogger;
 
@@ -70,10 +70,10 @@ public class RequirementEstimator {
 				sizeZero++;
 			}
 		}
-		estimation = sum / (size + (sizeZero/8));
+		//estimation = sum / (size + (sizeZero/8));
 		//estimation *= totalSize;
-		//double Size = (1-beta)*size + beta*(size+sizeZero);
-		//estimation = sum / Size;
+		double Size = (1-beta)*size + beta*(size+sizeZero);
+		estimation = sum / Size;
 		
 		//estimation = sum / nodes.size();
 		estimation *= totalSize;
@@ -101,12 +101,12 @@ public class RequirementEstimator {
 				sizeZero++;
 			}
 		}
-		estimation = sum / (size + (sizeZero/8));
+		//estimation = sum / (size + (sizeZero/8));
 		//estimation *= totalSize;
 		//estimation = sum / (2*size);
 		
-		//double Size = (1-beta)*size + beta*(size+sizeZero);
-		//estimation = sum / Size;
+		double Size = (1-beta)*size + beta*(size+sizeZero);
+		estimation = sum / Size;
 		//estimation = sum / nodes.size();
 		estimation *= totalSize;
 		//expLogger.writeLine(nodes.size() + "," + totalSize + "," + "future");

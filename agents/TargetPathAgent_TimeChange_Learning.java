@@ -33,7 +33,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
     Random rand;
     IEnvironment environment;
     double alpha = 0.1;
-    double beta = 0.125;
+    double beta = 0.1;
     int scale = 50;
     int[][] agentPosition = new int[2*scale+1][2*scale+1];
     List<Integer> excludeNodes;
@@ -333,7 +333,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 			//
 		}
 		
-        double realValue = sum / (size + (sizeZero/8));
+        //double realValue = sum / (size + (sizeZero/8));
 		/*double srate = (sizeZero + size) / size;
 		srate -= 1.0;
 		if(srate <= 0){
@@ -344,13 +344,12 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         */
 		
 		
-		//double Size = (1-beta)*size + beta*(size+sizeZero);
-		//double realValue = sum / Size;
+		double Size = (1-beta)*size + beta*(size+sizeZero);
+		double realValue = sum / Size;
 		realValue *= totalSize	;
         learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
         double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue*learnRate)) * estimator.getCorrection();//correctionの更新
-        //double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue + (learnRate*totalSize))) * estimator.getCorrection();//correctionの更新
         
         if(!(correction > 0)){
             correction = 0.1;
@@ -367,16 +366,16 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         double orate = estimator.getLearnRate();
         double exp2;
         
-        double a = zeroCount / 8;
-        double b = a * 7;
-        double Count = moveCount - b;
+        //double a = zeroCount / 8;
+        //double b = a * 7;
+        //double Count = moveCount - b;
         //double Count = moveCount - zeroCount;
         //double Count = moveCount;
         //exp2 = realValue - exp;
         //exp2 /= moveCount;
         
-        //double count = moveCount - zeroCount;
-        //double Count = (1-beta)*count + beta*moveCount;
+        double count = moveCount - zeroCount;
+        double Count = (1-beta)*count + beta*moveCount;
         //double Count = moveCount;
         
         exp2 = exp / Count;
