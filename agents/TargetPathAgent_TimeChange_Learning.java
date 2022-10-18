@@ -365,6 +365,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         double rate;
         double orate = estimator.getLearnRate();
         double exp2;
+        double rate2;
         
         double a = zeroCount / 8;
         double b = a * 7;
@@ -380,16 +381,17 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         
         exp2 = exp / Count;
         exp2 *= moveCount;
+        rate2 = realValue / exp;
        
         if(exp2 == 0){
             rate = estimator.getLearnRate();
         }
         else{
-            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2);
+            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
             //rate = (1-ganma) * estimator.getLearnRate() + ganma * exp2;
             estimator.setLearnRate(rate);
         }
-        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
+        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + rate2 + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
      
         estimator.setLearnRate(rate);
         return;
