@@ -20,7 +20,7 @@ public class RequirementEstimator {
 	IGraph map;
 	double correction;
 	boolean change;
-	double learnRate;
+	double learnRate, learnRate2;
 	double beta = 0.1;
 	
 	LogWriter2 expLogger;
@@ -77,7 +77,7 @@ public class RequirementEstimator {
 		
 		//estimation = sum / nodes.size();
 		estimation *= totalSize;
-		if ((estimation * learnRate / correction) < requirement){
+		if ((estimation * learnRate * learnRate2 / correction) < requirement){
 			reached = true;
 		}
 
@@ -113,7 +113,7 @@ public class RequirementEstimator {
 		
 		//estimation = sum;
 		
-		if ((estimation * learnRate / correction) < requirement){
+		if ((estimation * learnRate * learnRate2 / correction) < requirement){
 			reached = true;
 		}
 	}
@@ -214,9 +214,18 @@ public class RequirementEstimator {
 	public void setLearnRate(double value){
 		learnRate = value;
 	}
+	
+	public void setLearnRate(double value1, double value2){
+		learnRate = value1;
+		learnRate2 = value2;
+	}
 
 	public double getLearnRate(){
 		return learnRate;
+	}
+	
+	public double getLearnRate2(){
+		return learnRate2;
 	}
 
 	public void setRequirement(double req) {

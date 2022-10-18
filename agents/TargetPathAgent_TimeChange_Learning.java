@@ -318,6 +318,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         double realValue2 = environment.getLitterAmount();
 		double sum = 0.0;
         double learnRate = estimator.getLearnRate();
+        double learnRate2 = estimator.getLearnRate2();
         int totalSize = graph.getAccessibleNode().size();
         double size = 0, sizeZero = 0;
 		for (int node : visitedNodes) {
@@ -347,9 +348,9 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 		//double Size = (1-beta)*size + beta*(size+sizeZero);
 		//double realValue = sum / Size;
 		realValue *= totalSize	;
-        learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
+        learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + (realValue*learnRate*learnRate2) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
-        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue*learnRate)) * estimator.getCorrection();//correctionの更新
+        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue*learnRate*learnRate2)) * estimator.getCorrection();//correctionの更新
         
         if(!(correction > 0)){
             correction = 0.1;
@@ -364,6 +365,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         double ganma = 0.1;
         double rate;
         double orate = estimator.getLearnRate();
+        double orate2 = estimator.getLearnRate2();
         double exp2;
         double rate2;
         
@@ -387,11 +389,12 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
             rate = estimator.getLearnRate();
         }
         else{
-            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
+            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2);
+            rate2 = (1-ganma) * estimator.getLearnRate2() + ganma * (realValue / exp);
             //rate = (1-ganma) * estimator.getLearnRate() + ganma * exp2;
-            estimator.setLearnRate(rate);
+            estimator.setLearnRate(rate, rate2);
         }
-        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + rate2 + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
+        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + orate + "," + rate + "," + orate2 + "," + rate2 + "," + moveCount + "," + zeroCount);
      
         estimator.setLearnRate(rate);
         return;
