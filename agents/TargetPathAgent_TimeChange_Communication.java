@@ -365,9 +365,9 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 			//
 		}
 		
-        double realValue = sum / (size + (sizeZero/6));
+        double realValue = sum / (size + (sizeZero/8));
         realValue *= totalSize	;
-        learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
+        learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
         double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue * learnRate)) * estimator.getCorrection();//correctionの更新
         
@@ -386,8 +386,8 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         double orate = estimator.getLearnRate();
         double exp2;
         
-        double a = zeroCount / 6;
-        double b = a * 5;
+        double a = zeroCount / 8;
+        double b = a * 7;
         double Count = moveCount - b;
         exp2 = exp / Count;
         exp2 *= moveCount;
