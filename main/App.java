@@ -506,8 +506,8 @@ public class App {
     	//sTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable);
     	//sTestSimulationMultiThread(AgentType.PDALearning, BehaviorType.normal);
         //pTestSimulationMultiThread(AgentType.PlannedStopping, BehaviorType.plannedStoppable);
-        //tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 0.5, 10, 15);
-        tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.normal, 600, 0.5, 10, 15);
+        tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 0.5, 10, 15);
+        //tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.normal, 600, 0.5, 10, 15);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 10, 35);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 35, 60);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 10, 35);
