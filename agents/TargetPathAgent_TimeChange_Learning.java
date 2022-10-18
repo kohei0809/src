@@ -33,7 +33,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
     Random rand;
     IEnvironment environment;
     double alpha = 0.1;
-    double beta = 0.05;
+    double beta = 0.1;
     int scale = 50;
     int[][] agentPosition = new int[2*scale+1][2*scale+1];
     List<Integer> excludeNodes;

@@ -21,7 +21,7 @@ public class RequirementEstimator {
 	double correction;
 	boolean change;
 	double learnRate;
-	double beta = 0.05;
+	double beta = 0.1;
 	
 	LogWriter2 expLogger;
 
