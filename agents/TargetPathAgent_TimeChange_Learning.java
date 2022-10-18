@@ -333,7 +333,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 			//
 		}
 		
-        double realValue = sum / (size + (sizeZero/8));
+        //double realValue = sum / (size + (sizeZero/8));
 		/*double srate = (sizeZero + size) / size;
 		srate -= 1.0;
 		if(srate <= 0){
@@ -344,8 +344,8 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         */
 		
 		
-		//double Size = (1-beta)*size + beta*(size+sizeZero);
-		//double realValue = sum / Size;
+		double Size = (1-beta)*size + beta*(size+sizeZero);
+		double realValue = sum / Size;
 		realValue *= totalSize	;
         learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
@@ -367,16 +367,16 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         double exp2;
         double rate2;
         
-        double a = zeroCount / 8;
-        double b = a * 7;
-        double Count = moveCount - b;
+        //double a = zeroCount / 8;
+        //double b = a * 7;
+        //double Count = moveCount - b;
         //double Count = moveCount - zeroCount;
         //double Count = moveCount;
         //exp2 = realValue - exp;
         //exp2 /= moveCount;
         
-        //double count = moveCount - zeroCount;
-        //double Count = (1-beta)*count + beta*moveCount;
+        double count = moveCount - zeroCount;
+        double Count = (1-beta)*count + beta*moveCount;
         //double Count = moveCount;
         
         exp2 = exp / Count;
