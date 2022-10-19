@@ -387,7 +387,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
             rate = estimator.getLearnRate();
         }
         else{
-            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2*2;
+            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
             //rate = (1-ganma) * estimator.getLearnRate() + ganma * exp2;
             estimator.setLearnRate(rate);
         }
