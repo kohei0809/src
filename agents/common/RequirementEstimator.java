@@ -114,7 +114,7 @@ public class RequirementEstimator {
 		//estimation = sum;
 		
 		if ((estimation * learnRate / correction) < requirement){
-			reached = true
+			reached = true;
 		}
 	}
 
