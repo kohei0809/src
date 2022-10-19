@@ -77,7 +77,7 @@ public class RequirementEstimator {
 		
 		estimation = sum / nodes.size();
 		estimation *= totalSize;
-		if ((estimation * learnRate / correction) < requirement){
+		if ((estimation / correction) < requirement){
 			reached = true;
 		}
 
@@ -113,7 +113,7 @@ public class RequirementEstimator {
 		
 		//estimation = sum;
 		
-		if ((estimation * learnRate / correction) < requirement){
+		if ((estimation / correction) < requirement){
 			reached = true;
 		}
 	}
