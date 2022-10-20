@@ -178,7 +178,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 
                 // When litter amount requirement is reached
                 estimator.update(expectation, visitedNodes);
-                if(data.getTime() > 500000 && (estimator.requirementReached() == true || homingFlag)){
+                if(data.getTime() > 1000000 && (estimator.requirementReached() == true || homingFlag)){
                 //if(estimator.requirementReached() == true || homingFlag){
                     // Target Decision
                     TargetPathAgentStatus status = new TargetPathAgentStatus(action, target, data);
@@ -242,7 +242,7 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 		if (action == AgentActions.move && counter == checkInterval) {
 			counter = 0;
 			// When litter amount requirement is reached
-			if (data.getTime() > 500000 && !isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){
+			if (data.getTime() > 1000000 && !isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){
             //if (!isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){	
                 estimator.update(expectation, visitedNodes);
                 if(estimator.requirementReached() == true){
