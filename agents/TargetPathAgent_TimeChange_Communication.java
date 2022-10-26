@@ -147,19 +147,12 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         
         if(action == AgentActions.move && searchNodes.contains(position)){
         	moveCount++;
-        	if(expectation.getExpetationValue(position, interval) == 0){
+        	if(expectation.getExpectationValue(position, interval) == 0){
         		zeroCount++;
         	}
-        	sumExp += expectation.getExpetationValue(position, interval);
+        	sumExp += expectation.getExpectationValue(position, interval);
             sumReal += vacuumedLitter;
         }
-        
-        /*if(action == AgentActions.move && expectation.getExpetationValue(position, interval) == 0){
-        	zeroCount++;
-        }
-        sumExp += expectation.getExpetationValue(position, interval);
-        sumReal += vacuumedLitter;
-		*/
 
         // Available to know other's position
         expectation.update(data.getRobotDataCollection(), data.getTime());

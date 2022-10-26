@@ -124,10 +124,10 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         // Update agent's probability map
         mySpawnPattern.setProbability(position, vacuumedLitter, interval);
 
-        if(action == AgentActions.move && expectation.getExpetationValue(position, interval) == 0){
+        if(action == AgentActions.move && expectation.getExpectationValue(position, interval) == 0){
         	zeroCount++;
         }
-        sumExp += expectation.getExpetationValue(position, interval);
+        sumExp += expectation.getExpectationValue(position, interval);
         sumReal += vacuumedLitter;
 
         // Available to know other's position

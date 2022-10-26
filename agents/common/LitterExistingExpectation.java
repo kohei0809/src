@@ -82,7 +82,7 @@ public class LitterExistingExpectation {
 		return incrementEnabled ? expectation * pattern.getAllPatterns().get(node).getIncrement() : expectation;
 	}
 
-	public double getExpetationValue(int node, int interval){
+	public double getExpectationValue(int node, int interval){
 		double prob = pattern.getAllPatterns().get(node).getProbability();
 		double exp = prob * interval;
 		return exp;
