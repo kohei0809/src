@@ -243,7 +243,6 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 			counter = 0;
 			// When litter amount requirement is reached
 			if (data.getTime() > 1000000 && !isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){
-            //if (!isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){	
                 estimator.update(expectation, visitedNodes);
                 if(estimator.requirementReached() == true){
                     importance.update_future(position, targetter.getNextTarget(), expectation, data.getTime());
@@ -323,25 +322,14 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
 		for (int node : visitedNodes) {
 			double exp = expectation.getExpectation(node);
 			sum += exp;
-			//
 			if(expectation.getProbability(node) != 0){
 				size++;
 			}
 			else{
 				sizeZero++;
 			}
-			//
 		}
 		
-        //double realValue = sum / (size + (sizeZero/8));
-		/*double srate = (sizeZero + size) / size;
-		srate -= 1.0;
-		if(srate <= 0){
-			srate = 1.0;
-		}
-		double Size = size + sizeZero/srate;
-        double realValue = sum / Size;
-        */
 		
 		
 		double Size = (1-beta)*size + beta*(size+sizeZero);
@@ -367,17 +355,8 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         double exp2;
         double rate2;
         
-        //double a = zeroCount / 8;
-        //double b = a * 7;
-        //double Count = moveCount - b;
-        //double Count = moveCount - zeroCount;
-        //double Count = moveCount;
-        //exp2 = realValue - exp;
-        //exp2 /= moveCount;
-        
         double count = moveCount - zeroCount;
         double Count = (1-beta)*count + beta*moveCount;
-        //double Count = moveCount;
         
         exp2 = exp / Count;
         exp2 *= moveCount;
@@ -388,7 +367,6 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
         }
         else{
             rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
-            //rate = (1-ganma) * estimator.getLearnRate() + ganma * exp2;
             estimator.setLearnRate(rate);
         }
         rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + (realValue/exp2) + "," + rate2 + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);

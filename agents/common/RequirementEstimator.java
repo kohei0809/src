@@ -70,10 +70,6 @@ public class RequirementEstimator {
 				sizeZero++;
 			}
 		}
-		//estimation = sum / (size + (sizeZero/8));
-		//estimation *= totalSize;
-		//double Size = (1-beta)*size + beta*(size+sizeZero);
-		//estimation = sum / Size;
 		
 		estimation = sum / nodes.size();
 		estimation *= totalSize;
@@ -101,17 +97,9 @@ public class RequirementEstimator {
 				sizeZero++;
 			}
 		}
-		//estimation = sum / (size + (sizeZero/8));
-		//estimation *= totalSize;
-		//estimation = sum / (2*size);
-		
-		//double Size = (1-beta)*size + beta*(size+sizeZero);
-		//estimation = sum / Size;
 		estimation = sum / nodes.size();
 		estimation *= totalSize;
 		//expLogger.writeLine(nodes.size() + "," + totalSize + "," + "future");
-		
-		//estimation = sum;
 		
 		if ((estimation / correction) < requirement){
 			reached = true;
