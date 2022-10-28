@@ -115,7 +115,6 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
         int position = robotData.getPosition();
         hasUpdatedTargetter = false;
         int time = data.getTime();
-
         expectation.update(data.getRobotDataCollection(), time);
         importance.update(action, robotData.getVacuumedLitter());
 
@@ -161,7 +160,7 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
                 }
 
                 // When litter amount requirement is reached
-                estimator.update(expectation, position, data.getTime());
+                estimator.update(expectation, position, time);
                 if(time > 1000 && (estimator.requirementReached() == true || homingFlag)){
                     // Target Decision
                     TargetPathAgentStatus status = new TargetPathAgentStatus(action, target, data);
@@ -174,7 +173,10 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
                         waitCounter = 0;
                         expLogger.writeLine(time + "," + estimator.getMaxNode() + "," + estimator.getEstimatedValue() + "," + waitProb + "," + estimator.getRequirement() + "," + estimator.getCorrection());
                         //waitTimeの計算
-                        sumTime = calculatePausingTime(time, position, robotData);
+                        sumTime = calculatePausingTime(time, position);
+
+                        chargeLogger.writeLine(time + ",wait,"+ "," + robotData.getBatteryLevel() + "," + sumTime);
+                        waitLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + waitProb + "," + sumTime);
                         return;
                     }
                 }
@@ -315,6 +317,7 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
     public void updateCorrection(ObservedData data, int position){
         double realValue2 = environment.getMaxLitterAmount();
         double realValue = 0;
+        int time = data.getTime();
         
         List<Integer> nodes = graph.getAllNode();
         List<Integer> maxNodes = new LinkedList<Integer>();
@@ -335,11 +338,11 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
         int target2 = environment.getMaxTarget();
         int size = maxNodes.size();
         int size2 = environment.getNodeListSize();
-        maxLogger.writeLine(data.getTime() + "," + realValue + "," + realValue2 + "," + size + "," + size2);
+        maxLogger.writeLine(time + "," + realValue + "," + realValue2 + "," + size + "," + size2);
         //PotentialCollection targetPotential = new DijkstraAlgorithm(graph).execute(target, position);
-        double exp = expectation.getExpectation(target, data.getTime()+basePotential.getPotential(target));
-        maxTargetLogger.writeLine(data.getTime() + "," + target + "," + exp + "," + size);
-        //maxTargetLogger.writeLine(data.getTime() + "," + target + "," + size);
+        double exp = expectation.getExpectation(target, time+basePotential.getPotential(target));
+        maxTargetLogger.writeLine(time + "," + target + "," + exp + "," + size);
+        //maxTargetLogger.writeLine(time + "," + target + "," + size);
         realValue += exp;
         double correction = 0;
         int checkCount = 1;
@@ -365,7 +368,7 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
                 }
                 else{
                 	if(maxCorrection == prior){
-                		maxCorrection *= 0.9;
+                		maxCorrection *= 0.95;
                 	}
                 	else{
                 		maxCorrection = (1.0 - beta) * maxCorrection + beta * prior;
@@ -385,7 +388,7 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
         estimator.setCorrection(correction);
     }
 
-    public int calculatePausingTime(int time, int position, RobotData robotData){
+    public int calculatePausingTime(int time, int position){
         int waitTime = 100;
         int count = 0;
         while(true){
@@ -405,9 +408,6 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
             }
             waitTime += 100;
         }
-
-        chargeLogger.writeLine(time + ",wait,"+ "," + robotData.getBatteryLevel() + "," + sumTime);
-        waitLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + waitProb + "," + sumTime);
         return waitTime;
     }
 
@@ -590,6 +590,11 @@ public class TargetPathAgent_TimeChange_U implements IAgent{
     public void setEnvironmentEstimatorU(RequirementEstimatorU estimator){
         this.estimator = estimator;
         estimator.setPotentialMap(baseNode);
+    }
+
+    @Override
+    public double getRequirement(){
+        return estimator.getRequirement();
     }
 
     @Override

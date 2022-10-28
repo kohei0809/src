@@ -254,7 +254,7 @@ public class TargetPathAgent_CycleLearning implements IAgent{
                 }
 
                 // When litter amount requirement is reached
-                estimator.update(expectation, position, data.getTime());
+                estimator.update(expectation, position, time);
                 if((cycleLearnEndTime <= time) && (estimator.requirementReached() == true || homingFlag)){
                     // Target Decision
                     TargetPathAgentStatus status = new TargetPathAgentStatus(action, target, data, myCycle);
@@ -267,7 +267,9 @@ public class TargetPathAgent_CycleLearning implements IAgent{
                         waitCounter = 0;
                         //expLogger.writeLine(time + "," + estimator.getMaxNode() + "," + estimator.getEstimatedValue() + "," + waitProb + "," + estimator.getRequirement() + "," + estimator.getCorrection());
                         //waitTimeの計算
-                        sumTime = calculatePausingTime(time, position, robotData);
+                        sumTime = calculatePausingTime(time, position);
+                        chargeLogger.writeLine(time + ",wait,"+ "," + robotData.getBatteryLevel() + "," + sumTime);
+                        waitLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + waitProb + "," + sumTime);
                         return;
                     }
                 }
@@ -428,6 +430,7 @@ public class TargetPathAgent_CycleLearning implements IAgent{
     public void updateCorrection(ObservedData data, int position){
         double realValue2 = environment.getMaxLitterAmount();
         double realValue = 0;
+        int time = data.getTime();
             
         List<Integer> nodes = graph.getAllNode();
         List<Integer> maxNodes = new LinkedList<Integer>();
@@ -449,10 +452,10 @@ public class TargetPathAgent_CycleLearning implements IAgent{
         int size = maxNodes.size();
         int size2 = environment.getNodeListSize();
         //PotentialCollection targetPotential = new DijkstraAlgorithm(graph).execute(target, position);
-        double exp = expectation.getExpectation(target, data.getTime()+basePotential.getPotential(target));
-        maxLogger.writeLine(data.getTime() + "," + realValue + "," + (realValue+exp) + "," + realValue2 + "," + size + "," + size2);
-        maxTargetLogger.writeLine(data.getTime() + "," + target + "," + exp + "," + size);
-        //maxTargetLogger.writeLine(data.getTime() + "," + target + "," + size);
+        double exp = expectation.getExpectation(target, time+basePotential.getPotential(target));
+        maxLogger.writeLine(time + "," + realValue + "," + (realValue+exp) + "," + realValue2 + "," + size + "," + size2);
+        maxTargetLogger.writeLine(time + "," + target + "," + exp + "," + size);
+        //maxTargetLogger.writeLine(time + "," + target + "," + size);
         realValue += exp;
         double correction = 0;
         int checkCount = 1;
@@ -465,20 +468,24 @@ public class TargetPathAgent_CycleLearning implements IAgent{
             correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / realValue) * estimator.getCorrection();
         }
         else {
-            correction = estimator.getCorrection() - (realValue / estimator.getRequirement() - 1);            
+            correction = estimator.getCorrection() - (realValue / estimator.getRequirement() - 1);
             overCount++;
-
-            if(overCount == checkCount){
+                
+            if(overCount <= checkCount){
                 sumCorrection += prior;
-                maxCorrection = sumCorrection / (double)overCount;
             }
-            else{
-                if(maxCorrection == prior){
-                    maxCorrection *= 0.9;
+              
+            if(overCount >= checkCount){
+                if(overCount == checkCount){
+                    maxCorrection = sumCorrection / (double)overCount;
                 }
                 else{
-                    //maxCorrection = (1.0 - beta) * maxCorrection + beta * prior;
-                    maxCorrection = prior;
+                	if(maxCorrection == prior){
+                		maxCorrection *= 0.9;
+                	}
+                	else{
+                		maxCorrection = (1.0 - beta) * maxCorrection + beta * prior;
+                	}
                 }
             }
         }
@@ -490,11 +497,11 @@ public class TargetPathAgent_CycleLearning implements IAgent{
             correction = maxCorrection;
         }
             
-        correctionLogger.writeLine(data.getTime() + "," + estimator.getCorrection() + "," + correction + "," + realValue + "," + estimator.getRequirement() + "," + sumCorrection + "," + maxCorrection + "," + prior);
+        correctionLogger.writeLine(time + "," + estimator.getCorrection() + "," + correction + "," + realValue + "," + estimator.getRequirement() + "," + sumCorrection + "," + maxCorrection + "," + prior);
         estimator.setCorrection(correction);
     }
 
-    public int calculatePausingTime(int time, int position, RobotData robotData){
+    public int calculatePausingTime(int time, int position){
     	int waitTime = myCycle;
         int count = 0;
         //int checkTime = 10000;
@@ -526,8 +533,6 @@ public class TargetPathAgent_CycleLearning implements IAgent{
         }
         
         estimationLogger.writeLine(time + "," + maxNode + "," + estimator.getEstimatedValue() + "," + waitTime + "," + estimator.requirementReached() + "," + estimator.getCorrection());                            
-        chargeLogger.writeLine(time + ",wait,"+ "," + robotData.getBatteryLevel() + "," + waitTime);
-        waitLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + waitProb + "," + waitTime);
         return waitTime;
     }
 
@@ -679,6 +684,11 @@ public class TargetPathAgent_CycleLearning implements IAgent{
     @Override
     public int getCycleIndex(){
         return cycleIndex;
+    }
+
+    @Override
+    public double getRequirement(){
+        return estimator.getRequirement();
     }
 
     @Override
