@@ -27,49 +27,47 @@ import core.util.PotentialCollection;
 import main.simulations.BehaviorType;
 
 public class TTestAgentManager implements IAgentManager{
-    IEnvironment environment;
-    BehaviorType behaviorType; // controlled by manager or autonomous
-    List<Map.Entry<IAgent, Integer>> agents; //<agent, robotID>
-    Map<Integer, AgentActions> agentActions; //previous actions before update
-    List<Integer> excludeNodes;
-    Random rand;
-    GridGraph graph;
-    int[][] communicationMemory = new int[20][20];
-    final int communicationInterval = 10800; // 同ロボットとの通信間隔(step) 10800-12h
-    final int communicationRange = 5; // 通信半径(ノード=m)
-    int[] potentialCenterNodeMemory ={-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    PotentialCollection[] agentsPotential = new PotentialCollection[20];
+    private IEnvironment environment;
+    private BehaviorType behaviorType; // controlled by manager or autonomous
+    private List<Map.Entry<IAgent, Integer>> agents; //<agent, robotID>
+    private Map<Integer, AgentActions> agentActions; //previous actions before update
+    private List<Integer> excludeNodes;
+    private Random rand;
+    private GridGraph graph;
     
-    int[][] agentPosition;
+    private int[][] communicationMemory = new int[20][20]; // 最後に通信したのがいつか
+    final private int communicationInterval = 10800; // 同ロボットとの通信間隔(step) 10800-12h
+    final private int communicationRange = 5; // 通信半径(ノード=m)
+    private int[] potentialCenterNodeMemory ={-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    private PotentialCollection[] agentsPotential = new PotentialCollection[20];
     
-    int stop_index = 0;
-    int max_stop_number = 1;
+    private int stop_index = 0;
+    private int max_stop_number = 1;
+    private boolean isStop = true;
+    private int stop_time, restart_time, stop_robots_number;
+    
+    private double originalReq = 0.0;
 
-    boolean isStop = true;
-    int stop_time;
-    int stop_robots_number;
-    int restart_time;
+    private int[] communicationTimesMemory = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //復帰からの他のエージェントとの実際の交渉回数
+    private int[] restart_time_before = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //以前の停止時間
 
-    int[] communicationTimesMemory = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //復帰からの他のエージェントとの実際の交渉回数
-    int[] restart_time_before = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //以前の停止時間
-
-    List<Integer> agent_number_list;
+    private List<Integer> agent_number_list;
 
     //ログ出力用
-    int[] accumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    int[] preAccumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[] accumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[] preAccumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    LogWriter2 accumulatedLitter; //各エージェントの各ステップでのごみ回収量
-    LogWriter2 strategyLogger; //各エージェントがどの戦略をとっているか
-    LogWriter2 difValueLogger;
-    LogWriter2 negoLoggerBT;
-    LogWriter2 negoLoggerTO;
-    LogWriter2 negoLoggerCT;
-    LogWriter2 searchNode;
-    LogWriter2 stopAgents;
-    LogWriter2 restartAgents;
-    LogWriter2 giveAmountAveLogger;
-    LogWriter2 remainValueLogger;
+    private LogWriter2 accumulatedLitter; //各エージェントの各ステップでのごみ回収量
+    private LogWriter2 strategyLogger; //各エージェントがどの戦略をとっているか
+    private LogWriter2 difValueLogger;
+    private LogWriter2 negoLoggerBT;
+    private LogWriter2 negoLoggerTO;
+    private LogWriter2 negoLoggerCT;
+    private LogWriter2 searchNode;
+    private LogWriter2 stopAgents;
+    private LogWriter2 restartAgents;
+    private LogWriter2 giveAmountAveLogger;
+    private LogWriter2 remainValueLogger;
     
 
     public TTestAgentManager(IEnvironment environment, BehaviorType behavior, int seed, GridGraph graph){
@@ -126,11 +124,11 @@ public class TTestAgentManager implements IAgentManager{
             case communicable:
                 communicable();
                 //エージェントの場所と担当ノードの図示
-                //printAgentInformation(100000);
+                printAgentInformation(100000);
                 //エージェントの担当ノードの数と中心の記録
-                //printSearchNodeNumber(3600);
+                printSearchNodeNumber(3600);
                 //エージェントのマップ全体の重要度を記録
-                //printAgentImportance(3600);
+                printAgentImportance(3600);
                 break;
             case plannedStoppable:
                 plannedStoppable();
@@ -141,24 +139,35 @@ public class TTestAgentManager implements IAgentManager{
                 //エージェントのマップ全体の重要度を記録
                 printAgentImportance(3600);
                 break;
-            case randomStoppable:
-                randomStoppable();
-                break;
-            case descendingStoppable:
-                descendingStoppable();
+            case changeRequirement:
+                changeRequirement();
                 break;
         }
 
-        printAgentImportance(100000);
+        //printAgentImportance(100000);
         printAccumulatedLitter(10000);
         printAgentEvaluation(10000);
-        //printAgentPositionCount(1000000);
+        printAgentPositionCount(1000000);
     }
 
     //Communicationを一切しない
     public void normal(){
         RobotDataCollection robots = environment.getRobotDataCollection();
         int time = environment.getTime();
+        
+      //エージェントの停止の設定
+        isStop = false;
+        stop_time = 0;
+        stop_robots_number = 13;
+        restart_time = Integer.MAX_VALUE;
+
+        if(isStop) {
+        	//エージェントの停止
+        	AgentStop(time, stop_time, restart_time, stop_robots_number);
+
+            //降順にエージェントの停止
+            //descendingAgentStop(time, stop_time, restart_time, stop_robots_number);
+        }
 
         ObservedData data = new ObservedData(time, robots);
 
@@ -176,7 +185,7 @@ public class TTestAgentManager implements IAgentManager{
                     }
                     environment.moveRobot(id, agent.getNextNode());
                 }
-                //このステップっから充電開始のとき
+                //このステップから充電開始のとき
                 else if(agent.getAction() == AgentActions.charge){
                     if(agentActions.get(id) != AgentActions.charge){
                         environment.connectRobotBase(id);
@@ -192,14 +201,14 @@ public class TTestAgentManager implements IAgentManager{
         int time = environment.getTime();
 
         //エージェントの停止の設定
-        boolean isStop = false;
+        isStop = false;
         stop_time = 3000000;
         stop_robots_number = 5;
         restart_time = Integer.MAX_VALUE;
 
         if(isStop) {
         	//エージェントの停止
-            AgentStop(time, stop_time, restart_time, stop_robots_number);
+        	AgentStop(time, stop_time, restart_time, stop_robots_number);
 
             //降順にエージェントの停止
             //descendingAgentStop(time, stop_time, restart_time, stop_robots_number);
@@ -267,6 +276,51 @@ public class TTestAgentManager implements IAgentManager{
                     }
                     environment.moveRobot(id, agent.getNextNode());
                 }
+                else if(agent.getAction() == AgentActions.charge){
+                    if(agentActions.get(id) != AgentActions.charge){
+                        environment.connectRobotBase(id);
+                    }
+                }
+                agentActions.put(id, agent.getAction());
+            }
+        }
+    }
+
+    //途中で品質要求値を変化させる
+    public void changeRequirement(){
+        RobotDataCollection robots = environment.getRobotDataCollection();
+        int time = environment.getTime();
+        
+        //品質要求値の変更の設定
+        int changeTime1 = 2000000;
+        int changeTime2 = 4000000;
+        double changeReq = 600.0;
+
+        ObservedData data = new ObservedData(time, robots);
+
+        for(Map.Entry<IAgent, Integer> pair : agents){
+            IAgent agent = pair.getKey();
+            int id = pair.getValue();
+
+            if(time == changeTime1){
+                originalReq = agent.getRequirement();
+                agent.setRequirement(changeReq);
+            }
+            if(time == changeTime2){
+                agent.setRequirement(originalReq);
+            }
+
+            //エージェントが停止していなければ
+            if(agentActions.get(id) != AgentActions.stop){
+                agent.update(data);
+                //このステップから充電を止めてmoveになるとき
+                if(agent.getAction() == AgentActions.move){
+                    if(agentActions.get(id) == AgentActions.charge || agentActions.get(id) == AgentActions.wait){
+                        environment.disconnectRobotBase(id);
+                    }
+                    environment.moveRobot(id, agent.getNextNode());
+                }
+                //このステップっから充電開始のとき
                 else if(agent.getAction() == AgentActions.charge){
                     if(agentActions.get(id) != AgentActions.charge){
                         environment.connectRobotBase(id);
@@ -607,7 +661,7 @@ public class TTestAgentManager implements IAgentManager{
 
         List<Integer> rnd = new LinkedList<Integer>();
         List<Map.Entry<Integer, Double>> array = new LinkedList<Map.Entry<Integer, Double>>();
-        //<robotID, correction factor>
+        //<robotID, K>
         int n = 0;
         for(Map.Entry<IAgent, Integer> pair : agents){
             IAgent agent = pair.getKey();
@@ -698,49 +752,8 @@ public class TTestAgentManager implements IAgentManager{
     		}
     	}
     }
-    
-    public void randomStoppable(){
-        RobotDataCollection robots = environment.getRobotDataCollection();
-        int time = environment.getTime();
-        if(stop_index >= max_stop_number){
-            stop_index = max_stop_number - 1;
-        }
-        
-        //エージェントの停止の設定
-        int stop_time = 3000000;
-        int stop_robots_number = 5;
-        int restart_time = Integer.MAX_VALUE;
 
-        //エージェントの停止
-        AgentStop(time, stop_time, restart_time, stop_robots_number);
-
-        ObservedData data = new ObservedData(time, robots);
-
-        for(Map.Entry<IAgent, Integer> pair : agents){
-            IAgent agent = pair.getKey();
-            int id = pair.getValue();
-
-            //エージェントが停止していなければ
-            if(agentActions.get(id) != AgentActions.stop){
-                agent.update(data);
-                //このステップから充電を止めてmoveになるとき
-                if(agent.getAction() == AgentActions.move){
-                    if(agentActions.get(id) == AgentActions.charge || agentActions.get(id) == AgentActions.wait){
-                        environment.disconnectRobotBase(id);
-                    }
-                    environment.moveRobot(id, agent.getNextNode());
-                }
-                //このステップっから充電開始のとき
-                else if(agent.getAction() == AgentActions.charge){
-                    if(agentActions.get(id) != AgentActions.charge){
-                        environment.connectRobotBase(id);
-                    }
-                }
-                agentActions.put(id, agent.getAction());
-            }            
-        }
-    }
-    
+    //エージェントをKの降順に停止
     public void descendingStoppable(){
         RobotDataCollection robots = environment.getRobotDataCollection();
         int time = environment.getTime();
@@ -842,7 +855,7 @@ public class TTestAgentManager implements IAgentManager{
   		}
   	}
   	
-  //降降順にエージェントの途中停止と再開
+  //降順にエージェントの途中停止と再開
   	private void descendingAgentStop(int time, int stop_time, int restart_time, int stop_robots_number) {
         if(time == stop_time) {
             System.out.println("Agents stop at " + stop_time + "ticks!");
@@ -1067,6 +1080,7 @@ public class TTestAgentManager implements IAgentManager{
         }
     }
 
+    //エージェントが選択した目標決定戦略を記録
     private void printAgentEvaluation(int interval){
         int time = environment.getTime();
 
@@ -1100,6 +1114,7 @@ public class TTestAgentManager implements IAgentManager{
         }
     }
 
+    //各エージェントが全てのノードの訪問回数を記録
     private void printAgentPositionCount(int interval){
         int time = environment.getTime();
         int scale = ((int) Math.sqrt(graph.getAllNode().size()) - 1) / 2;

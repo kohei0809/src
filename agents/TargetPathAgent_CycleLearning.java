@@ -142,11 +142,6 @@ public class TargetPathAgent_CycleLearning implements IAgent{
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
         hasUpdatedTargetter = false;
@@ -764,11 +759,6 @@ public class TargetPathAgent_CycleLearning implements IAgent{
     public void setEnvironmentEstimatorU(RequirementEstimatorU estimator){
         this.estimator = estimator;
         estimator.setPotentialMap(baseNode);
-    }
-
-    @Override
-    public boolean requirementReached(){
-        return false;
     }
 
     @Override

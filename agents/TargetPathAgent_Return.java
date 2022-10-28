@@ -64,11 +64,6 @@ public class TargetPathAgent_Return implements IAgent{
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
 
@@ -373,11 +368,6 @@ public class TargetPathAgent_Return implements IAgent{
     @Override
     public double getCorrection(){
         return estimator.getCorrection();
-    }
-
-    @Override
-    public boolean requirementReached(){
-        return false;
     }
 
     @Override

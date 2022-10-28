@@ -67,11 +67,6 @@ public class TargetPathAgent_ReturnAndWait implements IAgent{
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
         hasUpdatedTargetter = false;
@@ -391,11 +386,6 @@ public class TargetPathAgent_ReturnAndWait implements IAgent{
 	public void setEnvironmentEstimator(RequirementEstimator estimator) {
 		this.estimator = estimator;
 	}
-
-    @Override
-    public boolean requirementReached(){
-        return false;
-    }
 
     @Override
 	public int getSearchNodeNumber(){

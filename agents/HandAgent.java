@@ -57,11 +57,6 @@ public class HandAgent implements IAgent{
 
 	@Override
 	public void update(ObservedData data) {
-		update(data, false);
-	}
-
-	@Override
-	public void update(ObservedData data, boolean flipCoin) {
 		RobotData robotdata = data.getRobotDataCollection().getRobotData(robotID);
 		int position = robotdata.getPosition();
 
@@ -197,11 +192,6 @@ public class HandAgent implements IAgent{
 	@Override
     public void setEnvironment(IEnvironment environment){
 		//ダミーメソッド
-    }
-
-    @Override
-    public boolean requirementReached(){
-        return false;
     }
 
 	@Override

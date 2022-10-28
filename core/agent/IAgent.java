@@ -64,13 +64,9 @@ public interface IAgent {
     //エージェントの状態をアップデート
     public void update(ObservedData data);
 
-    public void update(ObservedData data, boolean flipCoin);
-
     public int getPositionCount(int x, int y);
 
     public void countPosition(int position);
-
-    public boolean requirementReached();
 
     public LitterExistingExpectation getExpectation();
 
@@ -85,6 +81,8 @@ public interface IAgent {
     public double getCorrection();
 
     public int getSuccessCount();
+
+    public double getRequirement();
     
     public int getFailureCount();
 

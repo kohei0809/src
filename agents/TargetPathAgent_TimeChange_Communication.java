@@ -26,8 +26,6 @@ import core.util.LogManagerContext;
 import core.util.LogWriter2;
 
 public class TargetPathAgent_TimeChange_Communication implements IAgent{
-    //Agentが経路追従等をするプログラム(ごみ発生確率は知っている)Return
-
     ITargetDecider targetter;
     IPathPlanner pather;
     int baseNode, target, nextNode;
@@ -37,20 +35,17 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
     Random rand;
     IEnvironment environment;
     double alpha = 0.1;
+    double beta = 0.1;
     int scale = 50;
     int[][] agentPosition = new int[2*scale+1][2*scale+1];
     List<Integer> excludeNodes;
     LitterSpawnPattern mySpawnPattern; //agent's map
     LitterSpawnPattern realSpawnPattern; //real map
     List<Integer> visitedNodes;
-    int moveCount = 0;
-    int zeroCount = 0;
 
     LitterExistingExpectation expectation;
     RequirementEstimator estimator;
     Importance importance;
-    
-    double sumExp = 0, sumReal = 0;
 
     List<Integer> nodes;
     List<Integer> searchNodes;
@@ -59,6 +54,10 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
     Coordinate myCenterNode = new Coordinate(0, 0);
     double myCenterNodeWeight = 0.0;
     CommunicationDetails communicationDetail;
+    
+    int moveCount = 0;
+    int zeroCount = 0;
+    double sumExp = 0, sumReal = 0;
 
     private int robotID, counter, waitCounter, checkInterval = 100, sumTime = 0;
     private AgentActions action;
@@ -72,7 +71,6 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
     LogWriter2 correctionLogger;
     LogWriter2 learnLogger;
     LogWriter2 rateLogger;
-    LogWriter2 zeroRateLogger;
 
     public TargetPathAgent_TimeChange_Communication(int id, LitterSpawnPattern pattern, GridGraph graph, int seed, List<Integer> excludeNodes) {
 		setRobotID(id);
@@ -121,25 +119,20 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         estimationLogger = LogManagerContext.getLogManager().createWriter2(dir + "/Estimate");
         //time, correction, newcorrection, realValue, req
         correctionLogger = LogManagerContext.getLogManager().createWriter2(dir + "/Correction");
-        //time, sum, sum/N*accesible, realValue, req
+        //time, sum, ...
         learnLogger = LogManagerContext.getLogManager().createWriter2(dir + "/Learn");
-        //time, exp, real, LearnRate, newLearnRate
+        //time, sum, ...
         rateLogger = LogManagerContext.getLogManager().createWriter2(dir + "/Rate");
-        
-        zeroRateLogger = LogManagerContext.getLogManager().createWriter2(dir + "/zeroRate");
     }
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
-        int interval = expectation.getInterval(position, data.getTime());
+        int time = data.getTime();
+        int interval = expectation.getInterval(position, time);
         int vacuumedLitter = robotData.getVacuumedLitter();
+        
         hasUpdatedTargetter = false;
 
         // Update agent's probability map
@@ -153,9 +146,9 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         	sumExp += expectation.getExpectationValue(position, interval);
             sumReal += vacuumedLitter;
         }
-
+        
         // Available to know other's position
-        expectation.update(data.getRobotDataCollection(), data.getTime());
+        expectation.update(data.getRobotDataCollection(), time);
 
         importance.update(action, vacuumedLitter);
 
@@ -163,13 +156,12 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 
         visitPosition(position);
 
-        if(data.getTime() == 0){
-            correctionLogger.writeLine(data.getTime() + "," + estimator.getCorrection() + "," + -1 + "," + -1 + "," + estimator.getRequirement());
+        if(time == 0){
+            correctionLogger.writeLine(time + "," + estimator.getCorrection() + "," + -1 + "," + -1 + "," + estimator.getRequirement());
         }
 
         //State transition
         if(action == AgentActions.move){
-        	//moveCount++;
             if(position == target){
                 if(isChargeRequired){
                     // start charging
@@ -177,7 +169,7 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
                     calculateSearchNode();
                     calculateCenterNode();
                     counter = 0;
-    		        chargeLogger.writeLine(data.getTime() + ",start," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
+    		        chargeLogger.writeLine(time + ",start," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
     		        updateLearnRate(data.getTime(), sumExp, sumReal);
     		        sumExp = 0;
     		        sumReal = 0;
@@ -198,36 +190,26 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
                 else{
                     action = AgentActions.move;
                     isChargeRequired = false;
-                    chargeLogger.writeLine(data.getTime() + ",finish," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
+                    chargeLogger.writeLine(time + ",finish," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
                 }
 
                 // When litter amount requirement is reached
-                estimator.update(expectation, visitedNodes);
-                if(data.getTime() > 500000 && (estimator.requirementReached() == true || homingFlag)){
+                estimator.update(expectation, searchNodes);
+                if(time > 1000000 && (estimator.requirementReached() == true || homingFlag)){
                     // Target Decision
                     TargetPathAgentStatus status = new TargetPathAgentStatus(action, target, data);
                     targetter.update(status);
                     hasUpdatedTargetter = true;
-                    importance.update_future(position, targetter.getNextTarget(), expectation, data.getTime());
+                    importance.update_future(position, targetter.getNextTarget(), expectation, time);
                     waitProb = 1.0 - importance.evaluate();
                     if(rand.nextDouble() < waitProb || homingFlag){
                         action = AgentActions.wait;
                         waitCounter = 0;
-                        int waitTime = 100;
 
-                        while(true){
-                            estimator.update_future(expectation, data.getTime() + waitTime, visitedNodes);
-                            estimationLogger.writeLine(data.getTime() + "," + estimator.getEstimatedValue() + "," + waitTime + "," + estimator.requirementReached());                            
-                        
-                            if(estimator.requirementReached() == false){
-                                sumTime = waitTime - 100;
-                                break;
-                            }
-                            waitTime += 100;
-                        }
+                       sumTime = calculatePausingTime(time, position);
 
-                        chargeLogger.writeLine(data.getTime() + ",wait,"+ "," + robotData.getBatteryLevel() + "," + sumTime);
-                        waitLogger.writeLine(data.getTime() + "," + robotData.getBatteryLevel() + "," + waitProb + "," + sumTime);
+                        chargeLogger.writeLine(time + ",wait,"+ "," + robotData.getBatteryLevel() + "," + sumTime);
+                        waitLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + waitProb + "," + sumTime);
                         return;
                     }
                 }
@@ -239,7 +221,7 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
                 action = AgentActions.move;
                 homingFlag = false;
                 waitCounter = 0;
-                chargeLogger.writeLine(data.getTime() + ",unwait," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
+                chargeLogger.writeLine(time + ",unwait," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
                 
                 if(estimator.getChange()){
                     updateCorrection(data);
@@ -267,16 +249,16 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 		if (action == AgentActions.move && counter == checkInterval) {
 			counter = 0;
 			// When litter amount requirement is reached
-			if (data.getTime() > 500000 && !isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){
-                estimator.update(expectation, visitedNodes);
+			if (time > 1000000 && !isChargeRequired && robotData.getBatteryLevel() < robotData.getRobotSpec().getCapacity() / 3){
+                estimator.update(expectation, searchNodes);
                 if(estimator.requirementReached() == true){
-                    importance.update_future(position, targetter.getNextTarget(), expectation, data.getTime());
+                    importance.update_future(position, targetter.getNextTarget(), expectation, time);
 				    returnProb = 1.0 - importance.evaluate();
 				    if (rand.nextDouble() < returnProb) {
                         homingFlag = true;
 
                         Coordinate pc = graph.getCoordinate(pather.getTarget());
-		    		    returnLogger.writeLine(data.getTime() + "," + robotData.getBatteryLevel() + "," + pc.x + "," + pc.y + "," + homingFlag);
+		    		    returnLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + pc.x + "," + pc.y + "," + homingFlag);
 
                         if(position == baseNode){
                             action = AgentActions.charge;
@@ -343,59 +325,84 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 		double sum = 0.0;
         double learnRate = estimator.getLearnRate();
         int totalSize = graph.getAccessibleNode().size();
-        int size = 0, sizeZero = 0;
-		//for (int node : visitedNodes) {
-        for (int node : searchNodes) {
+        double size = 0, sizeZero = 0;
+		for (int node : searchNodes) {
 			double exp = expectation.getExpectation(node);
 			sum += exp;
-			//
 			if(expectation.getProbability(node) != 0){
 				size++;
 			}
 			else{
 				sizeZero++;
 			}
-			//
 		}
 		
-        double realValue = sum / (size + (sizeZero/8));
-        realValue *= totalSize	;
+		
+		
+		double Size = (1-beta)*size + beta*(size+sizeZero);
+		double realValue = sum / Size;
+		realValue *= totalSize	;
         learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
 
-        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue * learnRate)) * estimator.getCorrection();//correctionの更新
+        double correction = (1.0 - alpha) * estimator.getCorrection() + alpha * (estimator.getRequirement() / (realValue*learnRate)) * estimator.getCorrection();//correctionの更新
         
         if(!(correction > 0)){
             correction = 0.1;
         }
         
-        correctionLogger.writeLine(data.getTime() + "," + estimator.getCorrection() + "," + correction + "," + realValue + "," + learnRate + "," + realValue*learnRate + "," + realValue2 + "," + estimator.getRequirement());
+        correctionLogger.writeLine(data.getTime() + "," + estimator.getCorrection() + "," + correction + "," + realValue + "," + estimator.getRequirement());
         
         estimator.setCorrection(correction);
     }
-    
+
     public void updateLearnRate(int time, double exp, double realValue){
         double ganma = 0.1;
         double rate;
         double orate = estimator.getLearnRate();
         double exp2;
+        double rate2;
         
-        double a = zeroCount / 8;
-        double b = a * 7;
-        double Count = moveCount - b;
+        double count = moveCount - zeroCount;
+        double Count = (1-beta)*count + beta*moveCount;
+        
         exp2 = exp / Count;
         exp2 *= moveCount;
-        
+        rate2 = realValue / exp;
+       
         if(exp2 == 0){
             rate = estimator.getLearnRate();
         }
         else{
-            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2);
+            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
             estimator.setLearnRate(rate);
         }
-        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
+        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + (realValue/exp2) + "," + rate2 + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
      
         estimator.setLearnRate(rate);
         return;
+    }
+
+    public int calculatePausingTime(int time, int position){
+    	int waitTime = 100;
+        int checkTime = 10000;
+        while(checkTime > 10){
+        	while(true){
+                estimator.update_future(expectation, time + waitTime, searchNodes);
+                              
+                if(estimator.requirementReached() == false){
+                    waitTime = waitTime - checkTime;
+                    if(waitTime < 0){
+                    	waitTime = 0;
+                    }
+                    break;
+                }
+                else{
+                }
+                waitTime += checkTime;
+            }
+        	checkTime /= 10;
+        }  
+        return waitTime;
     }
 
     private void calculateCenterNode(){
@@ -479,7 +486,6 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         }
     }
 
-    @Override
     public void setRobotID(int id){
         robotID = id;
     }
@@ -594,6 +600,11 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 	}
 
     @Override
+    public double getRequirement(){
+        return estimator.getRequirement();
+    }
+
+    @Override
     public void setSleepProbability(double p){
         //ダミーメソッド
     }
@@ -642,11 +653,6 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
     }
 
     @Override
-    public boolean requirementReached(){
-        return false;
-    }
-
-    @Override
 	public int getSuccessCount(){
 		//ダミーメソッド
         return -1;
@@ -662,11 +668,11 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
     public void resetSuccessCount(){
         //ダミーメソッド
     }
-
+    
     @Override
-	public void setEnvironmentEstimatorU(RequirementEstimatorU estimator){
-		//ダミーメソッド
-	}
+    public void setEnvironmentEstimatorU(RequirementEstimatorU estimator){
+    	//ダミーメソッド
+    }
 
     @Override
     public void restart(ObservedData data){

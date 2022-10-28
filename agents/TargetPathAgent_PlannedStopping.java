@@ -125,11 +125,6 @@ public class TargetPathAgent_PlannedStopping implements IAgent{
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
         int interval = expectation.getInterval(position, data.getTime());
@@ -372,11 +367,6 @@ public class TargetPathAgent_PlannedStopping implements IAgent{
     @Override
     public void setEnvironmentEstimator(RequirementEstimator estimator){
 
-    }
-
-    @Override
-    public boolean requirementReached(){
-        return false;
     }
 
     @Override

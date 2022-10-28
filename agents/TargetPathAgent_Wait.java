@@ -62,11 +62,6 @@ public class TargetPathAgent_Wait implements IAgent{
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
         hasUpdatedTargetter = false;
@@ -272,11 +267,6 @@ public class TargetPathAgent_Wait implements IAgent{
     @Override
     public void countPosition(int position){
 
-    }
-
-    @Override
-    public boolean requirementReached(){
-        return false;
     }
 
     @Override

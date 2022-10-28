@@ -57,6 +57,11 @@ public class OTestAgentManager implements IAgentManager{
 
     List<Integer> agent_number_list;
 
+    //clusterStoppableについて
+    int [] pausingStepCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,}; //interval中のPausingをしたstep数
+    List<Integer> cluster; //各クラスター
+    double[][] centroids = new double[2][2]; //各クラスターの重心
+
     //ログ出力用
     int[] accumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int[] preAccumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -74,7 +79,9 @@ public class OTestAgentManager implements IAgentManager{
     LogWriter2 remainValueLogger;
     LogWriter2 onebyoneLogger;
     LogWriter2 agentSuccessLogger;
-    
+    LogWriter2 clusteringLogger;
+    //LogWriter2 checkLogger;
+
 
     public OTestAgentManager(IEnvironment environment, BehaviorType behavior, int seed, GridGraph graph){
         this.environment = environment;
@@ -115,6 +122,8 @@ public class OTestAgentManager implements IAgentManager{
         remainValueLogger = LogManagerContext.getLogManager().createWriter2("RemainValueLogger");
         onebyoneLogger = LogManagerContext.getLogManager().createWriter2("onebyoneLogger");
         agentSuccessLogger = LogManagerContext.getLogManager().createWriter2("agentSuccessLogger");
+        clusteringLogger = LogManagerContext.getLogManager().createWriter2("clusteringLogger");
+        //checkLogger = LogManagerContext.getLogManager().createWriter2("checkLogger");
     }
 
     public void addAgent(IAgent agent){
@@ -149,6 +158,9 @@ public class OTestAgentManager implements IAgentManager{
                 break;
             case onebyoneStoppable:
                 onebyoneStoppable();
+                break;
+            case clusterStoppable:
+                clusterStoppable();
                 break;
         }
 
@@ -286,11 +298,11 @@ public class OTestAgentManager implements IAgentManager{
 
         //エージェントの停止の設定
         boolean isStop = true;
-        stop_time = 250000;
+        stop_time = 50000;
         stop_robots_number = 1;
         restart_time = Integer.MAX_VALUE;
-        int stop_interval = 250000;
-        double stop_probability = 0.6;
+        int stop_interval = 50000;
+        //double stop_probability = 0.6;
 
         if(isStop){
             if(time == (stop_time + scount*stop_interval)){
@@ -349,7 +361,6 @@ public class OTestAgentManager implements IAgentManager{
                 //onebyoneLogger.writeLine(time + "," + sum + "," + count + "," + sum/count);
                 // onebyoneLogger.writeLine(time + "," + sSum + "," + fSum + "," + prob + "," + stop_check);
                 onebyoneLogger.writeLine(time + "," + sSum + "," + fSum + "," + stop_check);
-                
                 
                 if((pausingCount >= stop_check) && (max >= 1.0)){
                 //if(((pausingCount >= stop_check) && (max >= 1.0)) || ((pausingCount >= 2*stop_check) && (max >= 0.9))){
@@ -425,6 +436,194 @@ public class OTestAgentManager implements IAgentManager{
             }
         }
     }
+
+    public void clusterStoppable(){
+        RobotDataCollection robots = environment.getRobotDataCollection();
+        int time = environment.getTime();
+
+        //エージェントの停止の設定
+        boolean isStop = true;
+        stop_time = 250000;
+        stop_robots_number = 1;
+        restart_time = Integer.MAX_VALUE;
+        int stop_interval = 250000;
+        double alpha = 0.05;
+
+        if(isStop && (time > 0)){
+            if(time % stop_interval == 0){    
+            	//System.out.println("check");
+                //停止するかの判断
+                //停止していないエージェントのKを取得
+                List<Double> KoA = new LinkedList<Double>(); //K of Agent
+                List<Integer> PoA = new LinkedList<Integer>(); //Pausing Count of Agent
+                for(Map.Entry<IAgent, Integer> pair : agents){
+                    IAgent agent = pair.getKey();
+                    int id = pair.getValue();
+
+                    if(agentActions.get(id) != AgentActions.stop){
+                        KoA.add(agent.getCorrection());
+                        PoA.add(pausingStepCount[id]);
+                    }
+                } 
+                kmeans2(KoA, PoA, time);
+
+                double disCentroids = centroids[1][1] - centroids[0][1];
+
+                //停止条件
+                if(disCentroids > stop_interval*alpha){
+                    System.out.println("Agents stop at " + time + "ticks!");
+                                
+                    List<Integer> rnd = new LinkedList<Integer>();
+                    List<Map.Entry<Integer, Double>> array = new LinkedList<Map.Entry<Integer, Double>>();
+                    //<robotID, correction factor>
+                    int n = 0;
+                    for(Map.Entry<IAgent, Integer> pair : agents){
+                        IAgent agent = pair.getKey();
+                        int agentID = agent.getRobotID();
+                                    
+                        rnd.add(agentID);
+                        array.add(n, new AbstractMap.SimpleEntry<Integer, Double>(agentID, agent.getCorrection()));
+                        n++;
+                    }
+                                
+                    //降順
+                    array.sort(new Comparator<Map.Entry<Integer, Double>>() {
+                    @Override
+                    public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2){
+                        return o2.getValue().compareTo(o1.getValue());
+                        }
+                    });
+                    
+                    int stop_number = stop_robots_number;
+                    for(int i=0; i<stop_number; i++) {
+                        double value = array.get(i).getValue();
+                        int delete_id = array.get(i).getKey();
+                                
+                        if(agentActions.get(delete_id) != AgentActions.stop){
+                            agentActions.put(delete_id, AgentActions.stop);
+                                    
+                            rnd.remove(rnd.indexOf(delete_id));
+                            //ログ記録
+                            stopAgents.writeLine(time + "," + delete_id + "," + agentActions.get(delete_id) + "," + value + "," + disCentroids);
+                            System.out.println("Agent" + delete_id + " is stopped.");
+                        }
+                        else{
+                            stop_number++;
+                        }
+                    }
+                }
+
+                //pausindStepCountをリセット
+                for(Map.Entry<IAgent, Integer> pair : agents){
+                    int id = pair.getValue();
+                    pausingStepCount[id] = 0;
+                }
+            }
+        }
+
+        ObservedData data = new ObservedData(time, robots);
+
+        for(Map.Entry<IAgent, Integer> pair : agents){
+            IAgent agent = pair.getKey();
+            int id = pair.getValue();
+
+            //interval中でのwaitのstep数を記録
+            if(agentActions.get(id) == AgentActions.wait){
+                pausingStepCount[id]++;
+            }
+
+            //エージェントが停止していなければ
+            if(agentActions.get(id) != AgentActions.stop){
+                agent.update(data);
+                //このステップから充電を止めてmoveになるとき
+                if(agent.getAction() == AgentActions.move){
+                    if(agentActions.get(id) == AgentActions.charge || agentActions.get(id) == AgentActions.wait){
+                        environment.disconnectRobotBase(id);
+                    }
+                    environment.moveRobot(id, agent.getNextNode());
+                }
+                //このステップっから充電開始のとき
+                else if(agent.getAction() == AgentActions.charge){
+                    if(agentActions.get(id) != AgentActions.charge){
+                        environment.connectRobotBase(id);
+                    }
+                }
+                agentActions.put(id, agent.getAction());
+            }
+        }
+    }
+
+    //k-means法によるクラスタリング(クラスタ数2)
+    private void kmeans2(List<Double> x, List<Integer> y, int time){
+        int max_iter = 300;
+        int k = 2; //クラスタ数
+        int size = x.size();
+        double[] distance = new double[k];
+        cluster = new LinkedList<Integer>();
+
+        //Kの最小値と最大値を各クラスターの重心とする 
+        centroids[0][0] = Double.MAX_VALUE;
+        centroids[1][0] = -1.0;
+        for(int i = 0; i < size; i++){
+            double correction = x.get(i);
+            if(correction < centroids[0][0]){
+                centroids[0][0] = correction;
+                centroids[0][1] = y.get(i);
+            }
+            if(correction > centroids[1][0]){
+                centroids[1][0] = correction;
+                centroids[1][1] = y.get(i);
+            }
+        }
+        
+        //checkLogger.writeLine(time + "," + centroids[0][0] + "," + centroids[1][0] + "," + "maxmin");
+
+        for(int epoch = 0; epoch < max_iter; epoch++){
+            for(int i = 0; i < size; i++){
+                for(int j = 0; j < k; j++){
+                    //各クラスタの重心との距離を計算
+                    distance[j] = ((centroids[j][0] - x.get(i)) * (centroids[j][0] - x.get(i))) + ((centroids[j][1] - y.get(i)) * (centroids[j][1] - y.get(i)));
+                    //checkLogger.writeLine(time + "," + i + "," + j + "," + epoch + "," + centroids[j][0] + "," + x.get(i) + "," + centroids[j][1] + "," + y.get(i) + "," + distance[j] + ",distance");
+                }
+                if(distance[0] <= distance[1]){
+                    cluster.add(0);
+                    //checkLogger.writeLine(time + "," + i + "," + distance[0] + "," + distance[1] + ",0");
+                }
+                else{
+                    cluster.add(1);
+                    //checkLogger.writeLine(time + "," + i + "," + distance[0] + "," + distance[1] + ",1");
+                }
+            }
+
+            double[][] newCentroids = {{0.0, 0.0}, {0.0, 0.0}};
+            for(int i = 0; i < k; i++){
+                int csize = 0;
+                for(int j = 0; j < size; j++){
+                    if(cluster.get(j) == i){
+                        csize+= 1;
+                        newCentroids[i][0] += x.get(j);
+                        newCentroids[i][1] += y.get(j);
+                    }
+                }
+
+                newCentroids[i][0] /= csize;
+                newCentroids[i][1] /= csize;
+                clusteringLogger.writeLine(time + "," + i + "," + csize + "," + newCentroids[i][0] + "," + newCentroids[i][1]);
+            }
+
+            //終了条件
+            if((newCentroids[0][0] == centroids[0][0]) && (newCentroids[0][1] == centroids[0][1])){
+                break;
+            }
+
+            for(int i = 0; i < 2; i++){
+                for(int j = 0; j < 2; j++){
+                    centroids[i][j] = newCentroids[i][j];
+                }
+            }
+        }
+    }
+
 
     //エージェント間のコミュニケーション
     private void communication(int id, ObservedData data){

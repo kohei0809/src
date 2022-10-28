@@ -36,11 +36,6 @@ public class TargetPathAgent implements IAgent{
 
     @Override
     public void update(ObservedData data){
-        update(data, false);
-    }
-
-    @Override
-    public void update(ObservedData data, boolean flipCoin){
         RobotData robotData = data.getRobotDataCollection().getRobotData(robotID);
         int position = robotData.getPosition();
 
@@ -68,15 +63,6 @@ public class TargetPathAgent implements IAgent{
         }
         else if(action == AgentActions.sleep){
             action = AgentActions.move;
-        }
-
-        //Flip coin when litter amount requirement is met
-        if(action == AgentActions.move && flipCoin == true){
-            double n = (new Random()).nextDouble();
-            if(n < sleepProb){
-                action = AgentActions.sleep;
-                return;
-            }
         }
 
         //Target Decision & Path Gneration
@@ -260,11 +246,6 @@ public class TargetPathAgent implements IAgent{
     @Override
     public void setEnvironmentEstimator(RequirementEstimator estimator){
 
-    }
-
-    @Override
-    public boolean requirementReached(){
-        return false;
     }
 
     @Override
