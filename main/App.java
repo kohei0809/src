@@ -30,7 +30,7 @@ import tools.ETestGraphCsvExport;
 
 public class App {
     boolean isAccumulate = true;
-    static int runs = 5010000;
+    static int runs = 8010000;
     static int scale = 50;
     static int min_robot_num = 20;
     static int max_robot_num = 20;
