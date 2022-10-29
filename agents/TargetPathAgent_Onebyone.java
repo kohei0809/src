@@ -512,4 +512,9 @@ public class TargetPathAgent_Onebyone implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return estimator.getRequirement();
+	}
 }

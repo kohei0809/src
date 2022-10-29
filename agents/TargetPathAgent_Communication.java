@@ -401,4 +401,9 @@ public class TargetPathAgent_Communication implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return -1;
+	}
 }

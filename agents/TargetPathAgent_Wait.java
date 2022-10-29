@@ -371,4 +371,9 @@ public class TargetPathAgent_Wait implements IAgent{
     public void restart(ObservedData data){
         //ダミーメソッド
     }
+
+	@Override
+	public double getRequirement() {
+		return estimator.getRequirement();
+	}
 }

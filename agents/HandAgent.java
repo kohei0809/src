@@ -239,4 +239,9 @@ public class HandAgent implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return -1;
+	}
 }

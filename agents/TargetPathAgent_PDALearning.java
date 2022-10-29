@@ -100,15 +100,6 @@ public class TargetPathAgent_PDALearning implements IAgent{
             action = AgentActions.move;
         }
 
-        //Flip coin when litter amount requirement is met
-        if(action == AgentActions.move && flipCoin == true){
-            double n = (new Random()).nextDouble();
-            if(n < sleepProb){
-                action = AgentActions.sleep;
-                return;
-            }
-        }
-
         //Target Decision & Path Gneration
         TargetPathAgentStatus status = new TargetPathAgentStatus(action, target, data);
         targetter.update(status);
@@ -358,4 +349,9 @@ public class TargetPathAgent_PDALearning implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return -1;
+	}
 }

@@ -425,4 +425,9 @@ public class TargetPathAgent_PlannedStopping implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return -1;
+	}
 }

@@ -17,6 +17,7 @@ import test.ETest.ETestSimulation;
 import test.ETest.ETestSimulationFactory;
 import test.LTest.LTestProcess;
 import test.MTest.MTestProcess;
+import test.NTest.NTestProcess;
 import test.OTest.OTestProcess;
 import test.PTest.PTestProcess;
 import test.RTest.RTestProcess;
@@ -497,6 +498,46 @@ public class App {
         }
     }
 
+    static void nTestSimulationMultiThread(AgentType agentType, BehaviorType behaviorType, double req, double correction, int sseed, int eseed){
+        int counter = 0, env = 3;
+        int t_from = 5, p = 2, t;
+        int robots = 40;
+        
+        int maxseed = eseed;
+        String date = "";
+
+        for(t = t_from; t < t_from+1; t++){
+            CountDownLatch startLatch = new CountDownLatch(1);
+            List<Thread> threads = new ArrayList<Thread>();
+
+            for(int s = sseed; s < maxseed; s++){
+                counter++;
+                System.out.println(counter);
+                //開始時刻
+                if(counter == 1){
+                    date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH-mm-ss"));
+                }
+                LogManager2 logManager = new LogManager2();
+
+                Thread thread = new Thread(new NTestProcess(logManager, startLatch, runs, agentType, environment[env], t, targetter[t],
+                        date, robots, counter, s, p, scale, behaviorType, req, correction));
+                thread.start();
+                threads.add(thread);
+            }
+
+            //同時にスレッドを実行する
+            startLatch.countDown();
+            try{
+                //スレッドが終了するのを待つ
+                for(Thread thread : threads){
+                    thread.join();
+                }
+            } catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args){
     	//eTestSimulationMultiThread();
         //eTestSimulationSingleThread();
@@ -506,13 +547,15 @@ public class App {
     	//sTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable);
     	//sTestSimulationMultiThread(AgentType.PDALearning, BehaviorType.normal);
         //pTestSimulationMultiThread(AgentType.PlannedStopping, BehaviorType.plannedStoppable);
-        tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 1.0, 10, 15);
+        //tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 1.0, 10, 15);
         //tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 1.0, 35, 60);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 10, 35);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 35, 60);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 10, 35);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 35, 60);
     	//uTestSimulationMultiThread(AgentType.TimeChange_U, BehaviorType.normal, 15, 1.0, 10, 20);
+        nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 10, 35);
+    	nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 35, 60);
     	
         //////////////////////////////////////////確認事項//////////////////////////////////////////////
         ////SubGoalPathPlanner, GreedyTargetDecide, ForMyopiaGreedy, ShortestGreedyPathPlanner, は既知の時はコメントアウトを外し////

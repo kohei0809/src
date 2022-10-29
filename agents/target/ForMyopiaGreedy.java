@@ -46,7 +46,7 @@ public class ForMyopiaGreedy implements ITargetDecider{
         rand = new Random(seed);
         
         //ごみの発生確率が既知の場合
-        //expectation = new LitterExistingExpectation(pattern, isAccumulate);
+        expectation = new LitterExistingExpectation(pattern, isAccumulate);
         
         nextTarget = nodes.get(rand.nextInt(nodes.size()));
     }

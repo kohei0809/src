@@ -593,4 +593,9 @@ public class TargetPathAgent_TimeChange_Learning implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return estimator.getRequirement();
+	}
 }

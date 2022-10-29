@@ -1,7 +1,6 @@
 package agents;
 
 import java.util.LinkedList;
-import java.util.Random;
 
 import agents.common.LitterExistingExpectation;
 import agents.common.RequirementEstimator;
@@ -296,4 +295,9 @@ public class TargetPathAgent implements IAgent{
     public int getCycleIndex(){
         return 0;
     }
+
+	@Override
+	public double getRequirement() {
+		return -1;
+	}
 }
