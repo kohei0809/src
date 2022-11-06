@@ -43,7 +43,7 @@ public class ShortestGreedyPathPlanner implements IPathPlanner{
         potentialMap = new DijkstraAlgorithm(map).execute(base);
 
         //ごみの発生確率が既知の場合
-        expectation = new LitterExistingExpectation(pattern, isAccumulate);
+        //expectation = new LitterExistingExpectation(pattern, isAccumulate);
     }
 
     public void update(TargetPathAgentStatus status){

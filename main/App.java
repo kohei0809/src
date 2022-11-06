@@ -30,7 +30,7 @@ import tools.ETestGraphCsvExport;
 
 public class App {
     boolean isAccumulate = true;
-    static int runs = 8010000;
+    static int runs = 5010000;
     static int scale = 50;
     static int min_robot_num = 20;
     static int max_robot_num = 20;
@@ -547,15 +547,15 @@ public class App {
     	//sTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable);
     	//sTestSimulationMultiThread(AgentType.PDALearning, BehaviorType.normal);
         //pTestSimulationMultiThread(AgentType.PlannedStopping, BehaviorType.plannedStoppable);
-        //tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 1.0, 10, 15);
+        tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.communicable, 1000, 1.0, 10, 35);
         //tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 1.0, 35, 60);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 10, 35);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 35, 60);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 10, 35);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 35, 60);
     	//uTestSimulationMultiThread(AgentType.TimeChange_U, BehaviorType.normal, 15, 1.0, 10, 20);
-        nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 10, 35);
-    	nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 35, 60);
+        //nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 10, 35);
+    	//nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 35, 60);
     	
         //////////////////////////////////////////確認事項//////////////////////////////////////////////
         ////SubGoalPathPlanner, GreedyTargetDecide, ForMyopiaGreedy, ShortestGreedyPathPlanner, は既知の時はコメントアウトを外し////
