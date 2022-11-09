@@ -35,7 +35,7 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
     Random rand;
     IEnvironment environment;
     double alpha = 0.1;
-    double beta = 0.2;
+    double beta = 0.1;
     int scale = 50;
     int[][] agentPosition = new int[2*scale+1][2*scale+1];
     List<Integer> excludeNodes;
@@ -367,16 +367,17 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         
         exp2 = exp / Count;
         exp2 *= moveCount;
-        rate2 = realValue / exp;
+        //rate2 = realValue / exp;
        
         if(exp2 == 0){
             rate = estimator.getLearnRate();
         }
         else{
-            rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
-            estimator.setLearnRate(rate);
+            //rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2)*rate2;
+        	rate = (1-ganma) * estimator.getLearnRate() + ganma * (realValue / exp2);
+        	estimator.setLearnRate(rate);
         }
-        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + (realValue/exp2) + "," + rate2 + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
+        rateLogger.writeLine(time + "," + exp + "," + exp2 + "," + realValue + "," + (realValue/exp2) + "," + orate + "," + rate + "," + moveCount + "," + zeroCount);
      
         estimator.setLearnRate(rate);
         return;
