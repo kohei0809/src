@@ -170,7 +170,7 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
                     calculateCenterNode();
                     counter = 0;
     		        chargeLogger.writeLine(time + ",start," + homingFlag + "," + robotData.getBatteryLevel() + "," + 0);
-    		        //updateLearnRate(data.getTime(), sumExp, sumReal);
+    		        updateLearnRate(data.getTime(), sumExp, sumReal);
     		        sumExp = 0;
     		        sumReal = 0;
     		        moveCount = 0;
@@ -339,8 +339,8 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 		
 		
 		
-		double Size = (1-beta)*size + beta*(size+sizeZero);
-		Size = searchNodes.size();
+		//double Size = (1-beta)*size + beta*(size+sizeZero);
+		double Size = searchNodes.size();
 		double realValue = sum / Size;
 		realValue *= totalSize	;
         learnLogger.writeLine(data.getTime() + "," + sum + "," + realValue + "," + (realValue*learnRate) + "," + realValue2 + "," + estimator.getRequirement() + "," + totalSize + "," + size + "," + sizeZero + "," + realValue2/realValue + "," + learnRate);
@@ -364,8 +364,8 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         double rate2;
         
         double count = moveCount - zeroCount;
-        double Count = (1-beta)*count + beta*moveCount;
-        
+        //double Count = (1-beta)*count + beta*moveCount;
+        double Count = moveCount;
         exp2 = exp / Count;
         exp2 *= moveCount;
         //rate2 = realValue / exp;
