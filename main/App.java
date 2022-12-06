@@ -30,7 +30,7 @@ import tools.ETestGraphCsvExport;
 
 public class App {
     boolean isAccumulate = true;
-    static int runs = 5010000;
+    static int runs = 10010000;
     static int scale = 50;
     static int min_robot_num = 20;
     static int max_robot_num = 20;
@@ -331,7 +331,7 @@ public class App {
     }
     
     static void tTestSimulationMultiThread(AgentType agentType, BehaviorType behaviorType, double req, double correction, int sseed, int eseed){
-        int counter = 0, env = 3;
+        int counter = 0, env = 2;
         int t_from = 5, p = 2, t;
         int robots = 20;
         
@@ -524,7 +524,6 @@ public class App {
                 thread.start();
                 threads.add(thread);
             }
-
             //同時にスレッドを実行する
             startLatch.countDown();
             try{
@@ -547,14 +546,14 @@ public class App {
     	//sTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable);
     	//sTestSimulationMultiThread(AgentType.PDALearning, BehaviorType.normal);
         //pTestSimulationMultiThread(AgentType.PlannedStopping, BehaviorType.plannedStoppable);
-        tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.communicable, 1000, 1.0, 10, 20);
-        //tTestSimulationMultiThread(AgentType.TimeChange_Learning, BehaviorType.normal, 1000, 1.0, 35, 60);
+        //tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.communicable, 1000, 1.0, 10, 35);
+        //tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.communicable, 1000, 1.0, 35, 60);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 10, 35);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 35, 60);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 10, 35);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 35, 60);
     	//uTestSimulationMultiThread(AgentType.TimeChange_U, BehaviorType.normal, 15, 1.0, 10, 20);
-        //nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 10, 35);
+        nTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.clusterStoppable, 600, 1.0, 10, 20);
     	//nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 35, 60);
     	
         //////////////////////////////////////////確認事項//////////////////////////////////////////////
