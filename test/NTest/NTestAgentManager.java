@@ -59,13 +59,13 @@ public class NTestAgentManager implements IAgentManager{
     List<Integer> agent_number_list;
 
     //clusterStoppableについて
-    int[] pausingStepCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //interval中のPausingをしたstep数
-    int[] pausingStepUnit = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //interval/10中のPausingをしたstep数
+    int[] pausingStepCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //interval中のPausingをしたstep数
+    int[] pausingStepUnit = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //interval/10中のPausingをしたstep数
     Clustering clus;
 
     //ログ出力用
-    int[] accumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int[] preAccumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int[] accumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int[] preAccumulatedLitters = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     LogWriter2 accumulatedLitter; //各エージェントの各ステップでのごみ回収量
     LogWriter2 strategyLogger; //各エージェントがどの戦略をとっているか
@@ -107,6 +107,8 @@ public class NTestAgentManager implements IAgentManager{
         	agent_number_list.add(i);
         }
         Collections.shuffle(agent_number_list);
+        
+        clus = new Clustering(seed);
 
         //マルチスレッド用
         accumulatedLitter = LogManagerContext.getLogManager().createWriter2("AccumulatedLitter");

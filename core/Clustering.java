@@ -3,7 +3,7 @@ package core;
 import java.util.LinkedList;
 import java.util.List;
 
-import core.util.HardMarginSVM;
+//import core.util.HardMarginSVM;
 import core.util.LogManagerContext;
 import core.util.LogWriter2;
 
@@ -14,12 +14,12 @@ public class Clustering {
     
     private List<Integer> cluster; //各クラスター
     private double[][] centroids; //各クラスターの重心
-    private HardMarginSVM svm;
+    //private HardMarginSVM svm;
     private double[][] X; //[x, y]
     private double[] ave, std;
     
-    private int[] prePausingUnit = new int[20];
-    private double[] stopThreshold = new double[20];
+    private int[] prePausingUnit = new int[30];
+    private double[] stopThreshold = new double[30];
     private double alpha = 0.1;
 
     private LogWriter2 clusteringLogger;
@@ -29,7 +29,7 @@ public class Clustering {
     private LogWriter2 clusterThresholdLogger;
 
     public Clustering(int seed){
-        svm = new HardMarginSVM(seed);
+        //svm = new HardMarginSVM(seed);
         ave = new double[2];
         std = new double[2];
 
@@ -148,7 +148,7 @@ public class Clustering {
                 //エージェントiが待機時間を大きく減少中なら閾値を少し変える
                 if(threshold < diff){
                 //if(threshold > diff){
-                    alpha = 0.05;
+                    alpha = 0.01;
                 }
                 else{
                     alpha = 0.1;
@@ -331,7 +331,7 @@ public class Clustering {
             std[0] += (x.get(i) - ave[0]) * (x.get(i) - ave[0]);
             std[1] += (y.get(i) - ave[1]) * (y.get(i) - ave[1]);
         }
-
+        
         std[0] /= size;
         std[1] /= size;
 

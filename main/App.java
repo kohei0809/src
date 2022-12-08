@@ -501,7 +501,7 @@ public class App {
     static void nTestSimulationMultiThread(AgentType agentType, BehaviorType behaviorType, double req, double correction, int sseed, int eseed){
         int counter = 0, env = 3;
         int t_from = 5, p = 2, t;
-        int robots = 40;
+        int robots = 30;
         
         int maxseed = eseed;
         String date = "";
