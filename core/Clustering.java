@@ -3,6 +3,7 @@ package core;
 import java.util.LinkedList;
 import java.util.List;
 
+import core.agent.AgentActions;
 //import core.util.HardMarginSVM;
 import core.util.LogManagerContext;
 import core.util.LogWriter2;
@@ -20,7 +21,9 @@ public class Clustering {
     
     private int[] prePausingUnit = new int[30];
     private double[] stopThreshold = new double[30];
+    private int[] prePausingTime = new int[30];
     private double alpha = 0.1;
+    private int count = 0;
 
     private LogWriter2 clusteringLogger;
     private LogWriter2 silLogger;
@@ -41,7 +44,7 @@ public class Clustering {
     }
 
     //停止できるか
-    public boolean isStop(List<Double> x, List<Integer> y, int[] pausingStepUnit, int time, int interval){        
+    public boolean isStop(List<Double> x, List<Integer> y, int[] pausingStepUnit, int time, int interval, AgentActions[] AoA){        
         //総待機時間がintervalを超えているか
         int sum = 0;
     	for(int i = 0; i < y.size(); i++){
@@ -54,15 +57,18 @@ public class Clustering {
 
         //全エージェントが待機時間を閾値よりも変化させていないか
         int diff = 0;
-        for(int i = 0; i < pausingStepUnit.length; i++){
-            diff = Math.abs(pausingStepUnit[i] - prePausingUnit[i]);
+        for(int i = 0; i < prePausingTime.length; i++){
+        	if(AoA[i] == AgentActions.stop){
+        		continue;
+        	}
+            diff = Math.abs(y.get(i) - prePausingTime[i]);
             //diff = pausingStepUnit[i] - prePausingUnit[i];
             if(stopThreshold[i]*10 < diff){
             //if(stopThreshold[i] > diff){
-                clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + diff + "," + "threshold" + "," + false);
+                clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + "threshold" + "," + false);
                 return false;
             }
-            clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + diff + "," + "threshold" + "," + true);
+            clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + "threshold" + "," + true);
         }
 
     	//標準化
@@ -137,28 +143,41 @@ public class Clustering {
                 prePausingUnit[i] = pausingStepUnit[i];
                 stopThreshold[i] = pausingStepUnit[i];
             }
+            //count++;
             return;
         }
         else{
             int diff = 0;
             for(int i = 0; i < pausingStepUnit.length; i++){
                 diff = Math.abs(pausingStepUnit[i] - prePausingUnit[i]);
-                //diff = pausingStepUnit[i] - prePausingUnit[i];
+                
+                //(エージェントiが待機時間を大きく減少中なら閾値を少し変える)
+                
+                //変化量の平均を求める
+                /*
+                double sum = (stopThreshold[i] * count) + diff;
+                stopThreshold[i] = sum / (count+1);
+				*/
+
                 double threshold = stopThreshold[i];
-                //エージェントiが待機時間を大きく減少中なら閾値を少し変える
+                
                 if(threshold < diff){
-                //if(threshold > diff){
-                    alpha = 0.01;
+                    alpha = 0.05;
                 }
                 else{
                     alpha = 0.1;
                 }
+                
+                prePausingUnit[i] = pausingStepUnit[i];
 
                 stopThreshold[i] = (1 - alpha) * threshold + alpha * diff;
+                
                 String dir = LogManagerContext.getLogManager().makeDir("Agent" + i); 
                 stopThresholdLogger = LogManagerContext.getLogManager().createWriter2(dir + "/stopShreshold");
                 stopThresholdLogger.writeLine(time + "," + threshold + ","  + diff + "," + stopThreshold[i] + "," +alpha);
+                //stopThresholdLogger.writeLine(time + "," + diff + "," + sum + "," +stopThreshold[i] + "," + count);
             }
+            //count++;
         }
     }
 

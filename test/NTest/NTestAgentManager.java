@@ -61,6 +61,7 @@ public class NTestAgentManager implements IAgentManager{
     //clusterStoppableについて
     int[] pausingStepCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //interval中のPausingをしたstep数
     int[] pausingStepUnit = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //interval/10中のPausingをしたstep数
+    AgentActions[] AoA = new AgentActions[30];
     Clustering clus;
 
     //ログ出力用
@@ -469,10 +470,12 @@ public class NTestAgentManager implements IAgentManager{
                         PoA.add(pausingStepCount[id]);
                         pausingStepCount[id] = 0;
                     }
+                    
+                    AoA[id] = agentActions.get(id);
                 } 
 
                 //停止条件
-                if(clus.isStop(KoA, PoA, pausingStepUnit ,time, stop_interval)){
+                if(clus.isStop(KoA, PoA, pausingStepUnit ,time, stop_interval, AoA)){
                     System.out.println("Agents stop at " + time + "ticks!");
                                 
                     List<Integer> rnd = new LinkedList<Integer>();
