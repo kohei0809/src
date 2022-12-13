@@ -57,18 +57,27 @@ public class Clustering {
 
         //全エージェントが待機時間を閾値よりも変化させていないか
         int diff = 0;
+        boolean flag = true;
         for(int i = 0; i < prePausingTime.length; i++){
         	if(AoA[i] == AgentActions.stop){
         		continue;
         	}
             diff = Math.abs(y.get(i) - prePausingTime[i]);
+            prePausingTime[i] = y.get(i);
             //diff = pausingStepUnit[i] - prePausingUnit[i];
             if(stopThreshold[i]*10 < diff){
             //if(stopThreshold[i] > diff){
-                clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + "threshold" + "," + false);
-                return false;
+                clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + prePausingTime[i] + "," + false);
+                flag = false;
+                //return false;
             }
-            clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + "threshold" + "," + true);
+            else{
+            	clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + prePausingTime[i] + "," + true);
+            }            
+        }
+        
+        if(flag == false){
+        	return false;
         }
 
     	//標準化
@@ -173,7 +182,7 @@ public class Clustering {
                 stopThreshold[i] = (1 - alpha) * threshold + alpha * diff;
                 
                 String dir = LogManagerContext.getLogManager().makeDir("Agent" + i); 
-                stopThresholdLogger = LogManagerContext.getLogManager().createWriter2(dir + "/stopShreshold");
+                stopThresholdLogger = LogManagerContext.getLogManager().createWriter2(dir + "/stopThreshold");
                 stopThresholdLogger.writeLine(time + "," + threshold + ","  + diff + "," + stopThreshold[i] + "," +alpha);
                 //stopThresholdLogger.writeLine(time + "," + diff + "," + sum + "," +stopThreshold[i] + "," + count);
             }

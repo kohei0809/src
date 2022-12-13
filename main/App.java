@@ -553,7 +553,7 @@ public class App {
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 10, 35);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 35, 60);
     	//uTestSimulationMultiThread(AgentType.TimeChange_U, BehaviorType.normal, 15, 1.0, 10, 20);
-        nTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.clusterStoppable, 600, 1.0, 10, 20);
+        nTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.clusterStoppable, 600, 1.0, 10, 15);
     	//nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 35, 60);
     	
         //////////////////////////////////////////確認事項//////////////////////////////////////////////
