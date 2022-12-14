@@ -18,10 +18,12 @@ public class Clustering {
     //private HardMarginSVM svm;
     private double[][] X; //[x, y]
     private double[] ave, std;
+    private int robotNum = 30;
     
-    private int[] prePausingUnit = new int[30];
-    private double[] stopThreshold = new double[30];
-    private int[] prePausingTime = new int[30];
+    private int[] prePausingUnit = new int[robotNum];
+    private double[] stopThreshold = new double[robotNum];
+    private int[] prePausingTime = new int[robotNum];
+    //private boolean[] changeAgent = new boolean[robotNum];
     private double alpha = 0.1;
     private int count = 0;
 
@@ -47,6 +49,7 @@ public class Clustering {
     public boolean isStop(List<Double> x, List<Integer> y, int[] pausingStepUnit, int time, int interval, AgentActions[] AoA){        
         //総待機時間がintervalを超えているか
         int sum = 0;
+    	/*
     	for(int i = 0; i < y.size(); i++){
         	sum += y.get(i);
         }
@@ -54,31 +57,47 @@ public class Clustering {
     	if(sum < interval){
     		return false;
     	}
+    	*/
 
         //全エージェントが待機時間を閾値よりも変化させていないか
         int diff = 0;
-        boolean flag = true;
-        for(int i = 0; i < prePausingTime.length; i++){
+        //boolean flag = true;
+        int j = 0;
+        for(int i = 0; i < robotNum; i++){
         	if(AoA[i] == AgentActions.stop){
         		continue;
         	}
-            diff = Math.abs(y.get(i) - prePausingTime[i]);
-            prePausingTime[i] = y.get(i);
+        	
+            diff = Math.abs(y.get(j) - prePausingTime[i]);
+            prePausingTime[i] = y.get(j);
             //diff = pausingStepUnit[i] - prePausingUnit[i];
             if(stopThreshold[i]*10 < diff){
             //if(stopThreshold[i] > diff){
                 clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + prePausingTime[i] + "," + false);
-                flag = false;
+                //changeAgent[i] = false;
+                //flag = false;
                 //return false;
             }
             else{
+            	//changeAgent[i] = true;
+            	//trueのエージェントの待機時間だけを足す
             	clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + prePausingTime[i] + "," + true);
-            }            
+            	sum += y.get(j);
+            }    
+            j++;
         }
         
+        /*
         if(flag == false){
         	return false;
         }
+        */
+        
+        //総待機時間がintervalを超えているか
+        clusteringLogger.writeLine(time + "," + sum);
+    	if(sum < interval){
+    		return false;
+    	}
 
     	//標準化
         standardization(x, y);
