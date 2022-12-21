@@ -201,7 +201,7 @@ public class TTestAgentManager implements IAgentManager{
         int time = environment.getTime();
 
         //エージェントの停止の設定
-        isStop = false;
+        isStop = true;
         stop_time = 3000000;
         stop_robots_number = 5;
         restart_time = Integer.MAX_VALUE;

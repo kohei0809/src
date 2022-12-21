@@ -163,8 +163,6 @@ public class UTestAgentManager implements IAgentManager{
             case multipleStoppable:
                 multipleStoppable();
                 break;
-            case restrictWait:
-                restrictWait();
         }
 
         //printAgentImportance(100000);
@@ -573,80 +571,6 @@ public class UTestAgentManager implements IAgentManager{
 
             //エージェントが停止していなければ
             if(agentActions.get(id) != AgentActions.stop){
-                agent.update(data);
-                //このステップから充電を止めてmoveになるとき
-                if(agent.getAction() == AgentActions.move){
-                    if(agentActions.get(id) == AgentActions.charge || agentActions.get(id) == AgentActions.wait){
-                        environment.disconnectRobotBase(id);
-                    }
-                    environment.moveRobot(id, agent.getNextNode());
-                }
-                //このステップっから充電開始のとき
-                else if(agent.getAction() == AgentActions.charge){
-                    if(agentActions.get(id) != AgentActions.charge){
-                        environment.connectRobotBase(id);
-                    }
-                }
-                agentActions.put(id, agent.getAction());
-            }
-        }
-    }
-
-    public void restrictWait(){
-        RobotDataCollection robots = environment.getRobotDataCollection();
-        int time = environment.getTime();
-        int checkNumber = 19;
-        int checkCount = 18000;
-
-        ObservedData data = new ObservedData(time, robots);
-
-        int count = 0;
-        List<Integer> waitAgentList = new LinkedList<Integer>(); 
-        for(Map.Entry<IAgent, Integer> pair : agents){
-            IAgent agent = pair.getKey();
-            int id = pair.getValue();
-
-            if(agent.getAction() == AgentActions.charge){
-                count++;
-            }
-            if(agent.getAction() == AgentActions.wait){
-                count++;
-                waitAgentList.add(id);
-            }
-        }
-
-        //List<Integer> restartAgentList = new LinkedList<Integer>();
-        int restartAgent = 0;
-        if(count > checkNumber){
-        	waitCount++;
-        }
-        else{
-        	waitCount = 0;
-        }
-        if(waitCount > checkCount){
-            restartLogger.writeLine(time + "," + count + "," + checkNumber + "," + "-1," + waitAgentList.size() + ",before");
-            int index = rand.nextInt(waitAgentList.size());
-            restartAgent = waitAgentList.get(index);            //if(!restartAgentList.contains(waitAgentList.get(index))){
-                //restartAgentList.add(waitAgentList.get(index));
-                //waitAgentList.remove(index);
-        	//}       
-        }
-        else{
-        	restartAgent = -1;
-        }
-        //int size = restartAgentList.size();
-
-        for(Map.Entry<IAgent, Integer> pair : agents){
-            IAgent agent = pair.getKey();
-            int id = pair.getValue();
-
-            //エージェントが停止していなければ
-            if(agentActions.get(id) != AgentActions.stop){
-                //if(restartAgentList.contains(id)){
-                if(restartAgent == id){
-            		agent.restart(data);
-                    restartLogger.writeLine(time + "," + count + "," + checkCount + "," + id + ",1" + ",after");
-                }
                 agent.update(data);
                 //このステップから充電を止めてmoveになるとき
                 if(agent.getAction() == AgentActions.move){

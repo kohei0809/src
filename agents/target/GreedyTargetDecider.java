@@ -42,7 +42,7 @@ public class GreedyTargetDecider implements ITargetDecider{
         rand = new Random(seed);
         nextTarget = nodes.get(rand.nextInt(nodes.size()));
         //ごみの発生確率が既知の場合
-        expectation = new LitterExistingExpectation(pattern, isAccumulate);
+        //expectation = new LitterExistingExpectation(pattern, isAccumulate);
     }
 
     public void setAccessibleNodes(List<Integer> nodes){

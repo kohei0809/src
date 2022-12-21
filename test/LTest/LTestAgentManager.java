@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import agents.common.LitterExistingExpectation;
 import core.CommunicationDetails;
 import core.Coordinate;
 import core.GridGraph;
@@ -135,9 +134,6 @@ public class LTestAgentManager implements IAgentManager{
                 plannedStoppable();
                 //エージェントの場所と担当ノードの図示
                 //printAgentInformation(10000);
-                break;
-            case randomStoppable:
-                randomStoppable();
                 break;
         }
 
@@ -284,48 +280,6 @@ public class LTestAgentManager implements IAgentManager{
                 }
                 agentActions.put(id, agent.getAction());
             }
-        }
-    }
-
-    public void randomStoppable(){
-        RobotDataCollection robots = environment.getRobotDataCollection();
-        int time = environment.getTime();
-        if(stop_index >= max_stop_number){
-            stop_index = max_stop_number - 1;
-        }
-        
-        //エージェントの停止の設定
-        int stop_time = 3000000;
-        int stop_robots_number = 5;
-        int restart_time = Integer.MAX_VALUE;
-
-        //エージェントの停止
-        AgentStop(time, stop_time, restart_time, stop_robots_number);
-
-        ObservedData data = new ObservedData(time, robots);
-
-        for(Map.Entry<IAgent, Integer> pair : agents){
-            IAgent agent = pair.getKey();
-            int id = pair.getValue();
-
-            //エージェントが停止していなければ
-            if(agentActions.get(id) != AgentActions.stop){
-                agent.update(data);
-                //このステップから充電を止めてmoveになるとき
-                if(agent.getAction() == AgentActions.move){
-                    if(agentActions.get(id) == AgentActions.charge || agentActions.get(id) == AgentActions.wait){
-                        environment.disconnectRobotBase(id);
-                    }
-                    environment.moveRobot(id, agent.getNextNode());
-                }
-                //このステップっから充電開始のとき
-                else if(agent.getAction() == AgentActions.charge){
-                    if(agentActions.get(id) != AgentActions.charge){
-                        environment.connectRobotBase(id);
-                    }
-                }
-                agentActions.put(id, agent.getAction());
-            }            
         }
     }
 
