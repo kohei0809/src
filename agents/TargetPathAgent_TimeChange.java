@@ -11,6 +11,7 @@ import agents.common.RequirementEstimatorU;
 import core.CommunicationDetails;
 import core.Coordinate;
 import core.GridGraph;
+import core.IEnvironment;
 import core.LitterSpawnPattern;
 import core.RobotData;
 import core.agent.AgentActions;
@@ -273,7 +274,7 @@ public class TargetPathAgent_TimeChange implements IAgent{
         int checkTime = 10000;
         while(checkTime > 10){
         	while(true){
-                estimator.update_future(expectation, time + waitTime, searchNodes);
+                estimator.update_future(expectation, position, time + waitTime);
                               
                 if(estimator.requirementReached() == false){
                     waitTime = waitTime - checkTime;
