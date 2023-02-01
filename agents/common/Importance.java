@@ -9,7 +9,6 @@ import core.util.DijkstraAlgorithm;
 
 // Contribution Degree of Agent: for performance self-monitoring
 public class Importance {
-
 	private LinkedList<Integer> record;
 	private DijkstraAlgorithm dijk;
 	private int Ls = 20, Ll = 50, Lf = 10;

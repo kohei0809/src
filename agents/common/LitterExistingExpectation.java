@@ -8,6 +8,7 @@ import core.RobotData;
 import core.RobotDataCollection;
 
 public class LitterExistingExpectation {
+	//イベント量の予測
 
 	int time;
 	LitterSpawnPattern pattern;

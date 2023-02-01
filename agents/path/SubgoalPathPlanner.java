@@ -45,7 +45,7 @@ public class SubgoalPathPlanner implements IPathPlanner{
         pathPlanner = new ShortestGreedyPathPlanner(robotID, map, pattern, baseNode, isAccumulate, seed, excludeNodes);
 
         //ごみの発生確率が既知の場合
-        //expectation = new LitterExistingExpectation(pattern, isAccumulate);
+        expectation = new LitterExistingExpectation(pattern, isAccumulate);
 
         subgoal = baseNode;
 

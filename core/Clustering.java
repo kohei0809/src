@@ -23,9 +23,7 @@ public class Clustering {
     private int[] prePausingUnit = new int[robotNum];
     private double[] stopThreshold = new double[robotNum];
     private int[] prePausingTime = new int[robotNum];
-    //private boolean[] changeAgent = new boolean[robotNum];
     private double alpha = 0.1;
-    private int count = 0;
 
     private LogWriter2 clusteringLogger;
     private LogWriter2 silLogger;
@@ -47,21 +45,10 @@ public class Clustering {
 
     //停止できるか
     public boolean isStop(List<Double> x, List<Integer> y, int[] pausingStepUnit, int time, int interval, AgentActions[] AoA){        
-        //総待機時間がintervalを超えているか
         int sum = 0;
-    	/*
-    	for(int i = 0; i < y.size(); i++){
-        	sum += y.get(i);
-        }
-    	clusteringLogger.writeLine(time + "," + sum);
-    	if(sum < interval){
-    		return false;
-    	}
-    	*/
 
         //全エージェントが待機時間を閾値よりも変化させていないか
         int diff = 0;
-        //boolean flag = true;
         int j = 0;
         for(int i = 0; i < robotNum; i++){
         	if(AoA[i] == AgentActions.stop){
@@ -70,28 +57,16 @@ public class Clustering {
         	
             diff = Math.abs(y.get(j) - prePausingTime[i]);
             prePausingTime[i] = y.get(j);
-            //diff = pausingStepUnit[i] - prePausingUnit[i];
             if(stopThreshold[i]*10 < diff){
-            //if(stopThreshold[i] > diff){
                 clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + prePausingTime[i] + "," + false);
-                //changeAgent[i] = false;
-                //flag = false;
-                //return false;
             }
             else{
-            	//changeAgent[i] = true;
             	//trueのエージェントの待機時間だけを足す
             	clusterThresholdLogger.writeLine(time + "," + i + "," + stopThreshold[i] + "," + stopThreshold[i]*10 + "," + diff + "," + prePausingTime[i] + "," + true);
             	sum += y.get(j);
             }    
             j++;
         }
-        
-        /*
-        if(flag == false){
-        	return false;
-        }
-        */
         
         //総待機時間がintervalを超えているか
         clusteringLogger.writeLine(time + "," + sum);
@@ -122,44 +97,6 @@ public class Clustering {
         else{
             silLogger.writeLine("true");
             return true;
-            
-            //各クラスターの重心の標準化を戻す
-            //reStandardization();
-            
-            //前の停止の際のサポートベクターマシンよりもEnergy-Save groupの重心が上にあるか判定
-            /*if(svm.predict(centroids[1], time)){
-                //SVM実行
-                int[] clusterArray = new int[cluster.size()];
-                
-                for(int i = 0; i < cluster.size(); i++) {
-                	clusterArray[i] = cluster.get(i);
-                }
-                
-                svm.fit(X, clusterArray, ave, std, time);
-                return true;
-            }
-            else{
-                return false;
-            }*/
-            
-            //ES-Groupの総待機時間の合計がインターバルを超えていたら停止
-            //sumTime = 0;
-            //for(int i = 0; i < cluster.size(); i++){
-            	/*if(cluster.get(i) == 1){
-            		double restandardX = (X[1][i] * std[1]) + ave[1];
-            		sumTime += restandardX;
-            	}*/
-            	
-            	//double restandardX = (X[1][i] * std[1]) + ave[1];
-        		//sumTime += restandardX;
-            //}
-            //clusteringLogger.writeLine(time + "," + sumTime);
-            //if(sumTime >= interval){
-            	//return true;
-            //}
-            //else{
-            	//return false;
-            //}
         }
 
     }
@@ -178,15 +115,6 @@ public class Clustering {
             int diff = 0;
             for(int i = 0; i < pausingStepUnit.length; i++){
                 diff = Math.abs(pausingStepUnit[i] - prePausingUnit[i]);
-                
-                //(エージェントiが待機時間を大きく減少中なら閾値を少し変える)
-                
-                //変化量の平均を求める
-                /*
-                double sum = (stopThreshold[i] * count) + diff;
-                stopThreshold[i] = sum / (count+1);
-				*/
-
                 double threshold = stopThreshold[i];
                 
                 if(threshold < diff){
@@ -205,7 +133,6 @@ public class Clustering {
                 stopThresholdLogger.writeLine(time + "," + threshold + ","  + diff + "," + stopThreshold[i] + "," +alpha);
                 //stopThresholdLogger.writeLine(time + "," + diff + "," + sum + "," +stopThreshold[i] + "," + count);
             }
-            //count++;
         }
     }
 
@@ -414,4 +341,3 @@ public class Clustering {
         }
     }
 }
-

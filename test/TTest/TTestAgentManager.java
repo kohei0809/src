@@ -124,11 +124,11 @@ public class TTestAgentManager implements IAgentManager{
             case communicable:
                 communicable();
                 //エージェントの場所と担当ノードの図示
-                printAgentInformation(100000);
+                //printAgentInformation(100000);
                 //エージェントの担当ノードの数と中心の記録
-                printSearchNodeNumber(3600);
+                //printSearchNodeNumber(3600);
                 //エージェントのマップ全体の重要度を記録
-                printAgentImportance(3600);
+                //printAgentImportance(3600);
                 break;
             case plannedStoppable:
                 plannedStoppable();
@@ -201,17 +201,17 @@ public class TTestAgentManager implements IAgentManager{
         int time = environment.getTime();
 
         //エージェントの停止の設定
-        isStop = true;
+        isStop = false;
         stop_time = 3000000;
         stop_robots_number = 5;
         restart_time = Integer.MAX_VALUE;
 
         if(isStop) {
         	//エージェントの停止
-        	AgentStop(time, stop_time, restart_time, stop_robots_number);
+        	//AgentStop(time, stop_time, restart_time, stop_robots_number);
 
             //降順にエージェントの停止
-            //descendingAgentStop(time, stop_time, restart_time, stop_robots_number);
+            descendingAgentStop(time, stop_time, restart_time, stop_robots_number);
         }
         
         ObservedData data = new ObservedData(time, robots);

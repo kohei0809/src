@@ -331,7 +331,7 @@ public class App {
     }
     
     static void tTestSimulationMultiThread(AgentType agentType, BehaviorType behaviorType, double req, double correction, int sseed, int eseed){
-        int counter = 0, env = 3;
+        int counter = 0, env = 2;
         int t_from = 5, p = 2, t;
         int robots = 20;
         
@@ -546,15 +546,15 @@ public class App {
     	//sTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable);
     	//sTestSimulationMultiThread(AgentType.PDALearning, BehaviorType.normal);
         //pTestSimulationMultiThread(AgentType.PlannedStopping, BehaviorType.plannedStoppable);
-        tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.communicable, 1000, 1.0, 10, 35);
-        tTestSimulationMultiThread(AgentType.TimeChange_Communication, BehaviorType.communicable, 1000, 1.0, 35, 60);
+        tTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable, 1000, 1.0, 10, 35);
+        //tTestSimulationMultiThread(AgentType.Communicating, BehaviorType.communicable, 1000, 1.0, 35, 60);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 10, 35);
     	//oTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.onebyoneStoppable, 600, 1.0, 35, 60);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 10, 35);
     	//mTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.multipleStoppable, 600, 1.0, 35, 60);
     	//uTestSimulationMultiThread(AgentType.TimeChange_U, BehaviorType.normal, 15, 1.0, 10, 20);
-        //nTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.clusterStoppable, 600, 1.0, 15, 35);
-    	//nTestSimulationMultiThread(AgentType.Onebyone, BehaviorType.clusterStoppable, 600, 1.0, 35, 60);
+        //nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 10, 35);
+    	//nTestSimulationMultiThread(AgentType.TimeChange, BehaviorType.normal, 600, 1.0, 35, 60);
     	
         //////////////////////////////////////////確認事項//////////////////////////////////////////////
         ////SubGoalPathPlanner, GreedyTargetDecide, ForMyopiaGreedy, ShortestGreedyPathPlanner, は既知の時はコメントアウトを外し////

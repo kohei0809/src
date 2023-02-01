@@ -35,11 +35,11 @@ public class NTestAgentManager implements IAgentManager{
     List<Integer> excludeNodes;
     Random rand;
     GridGraph graph;
-    int[][] communicationMemory = new int[20][20];
+    int[][] communicationMemory = new int[30][30];
     final int communicationInterval = 10800; // 同ロボットとの通信間隔(step) 10800-12h
     final int communicationRange = 5; // 通信半径(ノード=m)
     int[] potentialCenterNodeMemory ={-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    PotentialCollection[] agentsPotential = new PotentialCollection[20];
+    PotentialCollection[] agentsPotential = new PotentialCollection[30];
     
     int[][] agentPosition;
     
@@ -359,15 +359,9 @@ public class NTestAgentManager implements IAgentManager{
                 	count = Integer.MAX_VALUE;
                 }
                 
-                //
-                //double prob = (double)sSum / pausingCount;
-                
-                //onebyoneLogger.writeLine(time + "," + sum + "," + count + "," + sum/count);
-                // onebyoneLogger.writeLine(time + "," + sSum + "," + fSum + "," + prob + "," + stop_check);
                 onebyoneLogger.writeLine(time + "," + sSum + "," + fSum + "," + stop_check);
                 
                 if((pausingCount >= stop_check) && (max >= 1.0)){
-                //if(((pausingCount >= stop_check) && (max >= 1.0)) || ((pausingCount >= 2*stop_check) && (max >= 0.9))){
                 	System.out.println("Agents stop at " + stop_time + "ticks!");
                         
                     List<Integer> rnd = new LinkedList<Integer>();
@@ -455,7 +449,6 @@ public class NTestAgentManager implements IAgentManager{
 
         if(isStop && (time > 0)){
             if(time % stop_interval == 0){    
-            	//System.out.println("check");
                 //停止するかの判断
                 //停止していないエージェントのKを取得
                 List<Double> KoA = new LinkedList<Double>(); //K of Agent

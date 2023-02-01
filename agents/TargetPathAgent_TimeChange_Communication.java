@@ -205,8 +205,7 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
                     if(rand.nextDouble() < waitProb || homingFlag){
                         action = AgentActions.wait;
                         waitCounter = 0;
-
-                       sumTime = calculatePausingTime(time, position);
+                        sumTime = calculatePausingTime(time, position);
 
                         chargeLogger.writeLine(time + ",wait,"+ "," + robotData.getBatteryLevel() + "," + sumTime);
                         waitLogger.writeLine(time + "," + robotData.getBatteryLevel() + "," + waitProb + "," + sumTime);
@@ -337,8 +336,6 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
 			}
 		}
 		
-		
-		
 		//double Size = (1-beta)*size + beta*(size+sizeZero);
 		double Size = searchNodes.size();
 		double realValue = sum / Size;
@@ -384,7 +381,7 @@ public class TargetPathAgent_TimeChange_Communication implements IAgent{
         return;
     }
 
-    public int calculatePausingTime(int time, int position){
+    private int calculatePausingTime(int time, int position){
     	int waitTime = 100;
         int checkTime = 10000;
         while(checkTime > 10){

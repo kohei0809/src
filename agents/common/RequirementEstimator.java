@@ -54,21 +54,16 @@ public class RequirementEstimator {
 	 * @param expectation probability * time interval
 	 * @param visitedNode list of nodes agent has visited
 	 */
+
+	//現在のイベント量の予測(p(v)未知)
 	public void update(LitterExistingExpectation expectation, List<Integer> visitedNodes) {
 		reached = false;
 		List<Integer> nodes = visitedNodes;
 
 		double sum = 0.0;
-		int size = 0, sizeZero = 0;
 		for (int node : nodes) {
 			double exp = expectation.getExpectation(node);
 			sum += exp;
-			if(expectation.getProbability(node) != 0){
-				size++;
-			}
-			else{
-				sizeZero++;
-			}
 		}
 		
 		estimation = sum / nodes.size();
@@ -80,22 +75,16 @@ public class RequirementEstimator {
 		//expLogger.writeLine(nodes.size() + "," + totalSize + "," + "H&P");
 	}
 
+	//未来のイベント量の予測(p(v)未知)
 	public void update_future(LitterExistingExpectation expectation, int time, List<Integer> visitedNodes) {
 		reached = false;
 		
 		List<Integer> nodes = visitedNodes;
 		
 		double sum = 0.0;
-		int size = 0, sizeZero = 0;
 		for (int node : nodes) {
 			double exp = expectation.getExpectation(node, time);
 			sum += exp;
-			if(expectation.getProbability(node) != 0){
-				size++;
-			}
-			else{
-				sizeZero++;
-			}
 		}
 		estimation = sum / nodes.size();
 		estimation *= totalSize;
@@ -111,10 +100,10 @@ public class RequirementEstimator {
 	 * 
 	 * @param expectation probability * time interval
 	 */
+
+	//現在のイベント量の予測(p(v)既知)
 	public void update(LitterExistingExpectation expectation, int position) {
 		reached = false;
-		//List<Integer> nodes = pickRandomNodes();
-		//List<Integer> nodes = pickNeighborNodes(position); // local observations
 		List<Integer> nodes = map.getAllNode();
 
 		double sum = 0.0;
@@ -122,7 +111,6 @@ public class RequirementEstimator {
 			double exp = expectation.getExpectation(node);
 			sum += exp;
 		}
-		//estimation = sum / nodes.size() * totalSize;
 		//expLogger.writeLine(estimation + "");
 		
 		estimation = sum;
@@ -132,10 +120,9 @@ public class RequirementEstimator {
 		}
 	}
 
+	//未来のイベント量の予測(p(v)既知)
 	public void update_future(LitterExistingExpectation expectation, int position, int time) {
 		reached = false;
-		//List<Integer> nodes = pickRandomNodes();
-		//List<Integer> nodes = pickNeighborNodes(position); // local observations
 		List<Integer> nodes = map.getAllNode();
 
 		double sum = 0.0;
@@ -143,7 +130,6 @@ public class RequirementEstimator {
 			double exp = expectation.getExpectation(node, time);
 			sum += exp;
 		}
-		//estimation = sum / nodes.size() * totalSize;
 		//expLogger.writeLine(estimation + "");
 		
 		estimation = sum;
@@ -151,52 +137,6 @@ public class RequirementEstimator {
 		if (estimation < requirement * correction){
 			reached = true;
 		}
-	}
-
-	// When PDA unknown (P initial value = 0)
-	private List<Integer> pickRandomNodes(List<Integer> visitedNode) {
-		List<Integer> nodes = new LinkedList<Integer>();
-		Random rand = new Random();
-		// if (visitedNode.size() < range)
-		// range = visitedNode.size();
-		for (int i = 0; i < refNodesNum; i++) {
-			nodes.add(rand.nextInt(visitedNode.size()));
-		}
-
-		return nodes;
-	}
-
-	// Larger reference area when being closer to charging base
-	/*
-	 * maxRoute: farthest node to charging bases
-	 */
-	private List<Integer> pickNeighborNodes(int position) {
-		List<Integer> nodes = new LinkedList<Integer>();
-		Random rand = new Random();
-		PotentialCollection distanceMap = new DijkstraAlgorithm(map).execute(position); // route to current position
-
-		int toBase = distanceMap.getPotential(base);
-		int range = Integer.max(minRange, maxRoute - toBase);
-		for (int i = 0; i < refNodesNum;) {
-			int node = rand.nextInt(totalSize);
-			if (distanceMap.getPotential(node) < range) {
-				nodes.add(node);
-				i++;
-			}
-		}
-
-		return nodes;
-	}
-
-	// Pick from the whole environment.
-	private List<Integer> pickRandomNodes() {
-		List<Integer> nodes = new LinkedList<Integer>();
-		Random rand = new Random();
-		for (int i = 0; i < refNodesNum; i++) {
-			nodes.add(rand.nextInt(totalSize));
-		}
-
-		return nodes;
 	}
 
 	public void setLearnRate(double value){
