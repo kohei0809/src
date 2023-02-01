@@ -10,10 +10,10 @@ import core.RobotDataCollection;
 public class LitterExistingExpectation {
 	//イベント量の予測
 
-	int time;
-	LitterSpawnPattern pattern;
-	boolean isAccumulate, incrementEnabled;
-	Map<Integer, Integer> visitedTime; // < node, time>
+	private int time;
+	private LitterSpawnPattern pattern;
+	private boolean isAccumulate, incrementEnabled;
+	private Map<Integer, Integer> visitedTime; // < node, time>
 
 	public LitterExistingExpectation(LitterSpawnPattern p, boolean isA) {
 		time = 0;

@@ -331,7 +331,7 @@ public class App {
     }
     
     static void tTestSimulationMultiThread(AgentType agentType, BehaviorType behaviorType, double req, double correction, int sseed, int eseed){
-        int counter = 0, env = 2;
+        int counter = 0, env = 3;
         int t_from = 5, p = 2, t;
         int robots = 20;
         

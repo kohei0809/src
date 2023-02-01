@@ -8,6 +8,7 @@ import core.agent.AgentActions;
 import core.util.DijkstraAlgorithm;
 
 // Contribution Degree of Agent: for performance self-monitoring
+//重要度の計算
 public class Importance {
 	private LinkedList<Integer> record;
 	private DijkstraAlgorithm dijk;
@@ -65,12 +66,15 @@ public class Importance {
 		shortTerm /= ls;
 		longTerm /= ll;
 
-		if ((shortTerm + futureExp) >= longTerm)
+		if ((shortTerm + futureExp) >= longTerm){
 			return 1.0;
-		else if (longTerm == 0)
+		}
+		else if (longTerm == 0){
 			return 0.0;
-		else
+		}
+		else{
 			return (shortTerm + futureExp) / longTerm;
+		}
 	}
 }
 

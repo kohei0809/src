@@ -36,7 +36,7 @@ public class TargetPathAgent_TimeChange implements IAgent{
     private GridGraph graph;
     private Random rand;
     private int[][] agentPosition = new int[2*scale+1][2*scale+1];
-    List<Integer> excludeNodes;
+    List<Integer> excludeNodes; //障害物のノード集合
 
     private LitterExistingExpectation expectation;
     private RequirementEstimator estimator;
@@ -247,6 +247,7 @@ public class TargetPathAgent_TimeChange implements IAgent{
     private void updateCorrection(ObservedData data){        
         List<Integer> nodes = graph.getAllNode();
 
+        //予測イベント量の計算
 		double sum = 0.0;
 		for (int node : nodes) {
 			double exp = expectation.getExpectation(node);
@@ -363,6 +364,7 @@ public class TargetPathAgent_TimeChange implements IAgent{
         return agentPosition[x][y];
     }
 
+    //エージェントが各ノードに何回訪問したかを記録する
     @Override
     public void countPosition(int position){
         Coordinate c = graph.getCoordinate(position);

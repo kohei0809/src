@@ -6,13 +6,11 @@ import java.util.Random;
 
 import core.IGraph;
 import core.util.DijkstraAlgorithm;
-import core.util.LogManagerContext;
-import core.util.LogWriter2;
 import core.util.PotentialCollection;
 
 // Estimate whether the total amount of litter reaches the requirement level.
 public class RequirementEstimatorU {
-	//U(s)のためのやつ
+	//U(s)のためのやつ, 未完成
 
 	int totalSize;
 	int base;

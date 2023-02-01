@@ -20,12 +20,12 @@ import core.util.PotentialCollection;
 public class ShortestGreedyPathPlanner implements IPathPlanner{
     //Greedy法で経路生成
 
-    Random rand;
-    int robotID, target = -1, base, time;
-    IGraph map;
-    LitterExistingExpectation expectation;
-    PotentialCollection potentialMap, pathMap;
-    List<Integer> excludeNodes = new LinkedList<Integer>();
+    private Random rand;
+    private int robotID, target = -1, base, time;
+    private IGraph map;
+    private LitterExistingExpectation expectation;
+    private PotentialCollection potentialMap, pathMap;
+    private List<Integer> excludeNodes = new LinkedList<Integer>();
 
     private int nextNode;
     private boolean canArrive;

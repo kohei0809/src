@@ -17,21 +17,21 @@ import core.util.LogWriter;
 
 //AMTDS
 public class AMTDSLearningTargetDecider_Energy_Clean implements ITargetDecider{
-    int robotID, time, preLitters = 0, travels = 0;
-    double alpha, epsilon, collectedLitters = 0.0, collectExp = 0.0, consumedEnergy = 0.0;;
-    Random rand;
-    boolean preStop = false;
+    private int robotID, time, preLitters = 0, travels = 0;
+    private double alpha, epsilon, collectedLitters = 0.0, collectExp = 0.0, consumedEnergy = 0.0;;
+    private Random rand;
+    private boolean preStop = false;
 
-    List<Integer> nodes;
-    LitterExistingExpectation expectation;
+    private List<Integer> nodes;
+    private LitterExistingExpectation expectation;
 
-    List<ITargetDecider> deciders;
-    Map<ITargetDecider, Double> Q;
-    Map<ITargetDecider, Integer> deciderNumber;
-    ITargetDecider selectedDecider = null;
-    ITargetDecider preSelectedDecider = null;
+    private List<ITargetDecider> deciders;
+    private Map<ITargetDecider, Double> Q;
+    private Map<ITargetDecider, Integer> deciderNumber;
+    private ITargetDecider selectedDecider = null;
+    private ITargetDecider preSelectedDecider = null;
 
-    LogWriter qLogger;
+    private LogWriter qLogger;
 
     public AMTDSLearningTargetDecider_Energy_Clean(int id, IGraph m, LitterSpawnPattern pattern, boolean isAccumulate, int seed){
         robotID = id;
@@ -42,9 +42,6 @@ public class AMTDSLearningTargetDecider_Energy_Clean implements ITargetDecider{
         deciders = new LinkedList<ITargetDecider>();
         Q = new HashMap<ITargetDecider, Double>();
         deciderNumber = new HashMap<ITargetDecider, Integer>();
-
-        //シングルスレッド用
-        //qLogger = LogManager.createWriter("QValue" + robotID);
 
         //マルチスレッド用
         //qLogger = LogManagerContext.getLogManager().createWriter("QValue" + robotID);

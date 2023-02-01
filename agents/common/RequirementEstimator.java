@@ -1,40 +1,28 @@
 package agents.common;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import core.IGraph;
-import core.util.DijkstraAlgorithm;
-import core.util.LogManagerContext;
-import core.util.LogWriter2;
-import core.util.PotentialCollection;
 
 // Estimate whether the total amount of litter reaches the requirement level.
+//品質要求を満たしているかを確認
+
 public class RequirementEstimator {
 
-	int refNodesNum, totalSize, minRange;
-	int base, maxRoute;
-	double estimation, requirement;
-	boolean reached;
-	IGraph map;
-	double correction;
-	boolean change;
-	double learnRate;
-	double beta = 0.1;
-	
-	LogWriter2 expLogger;
+	private int totalSize;
+	private double estimation, requirement;
+	private boolean reached;
+	private IGraph map;
+	private double correction;
+	private boolean change;
+	private double learnRate;
 
 	public RequirementEstimator(IGraph m, int chargingBase, double corr) {
-		refNodesNum = 100;
 		map = m;
 		totalSize = map.getAccessibleNode().size();
-		minRange = 10;
-		base = chargingBase;
+		//base = chargingBase;
 		reached = false;
 		learnRate = 1.0;
-
-		maxRoute = new DijkstraAlgorithm(map).getMaxRouteLength(base);
 
 		if(corr < 0){
 			change = false;
@@ -44,8 +32,6 @@ public class RequirementEstimator {
 			correction = corr;
 			change = true;
 		}
-
-		expLogger = LogManagerContext.getLogManager().createWriter2("expLogger");
 	}
 
 	/**
@@ -71,8 +57,6 @@ public class RequirementEstimator {
 		if ((estimation / correction) * learnRate < requirement){
 			reached = true;
 		}
-
-		//expLogger.writeLine(nodes.size() + "," + totalSize + "," + "H&P");
 	}
 
 	//未来のイベント量の予測(p(v)未知)
@@ -88,7 +72,6 @@ public class RequirementEstimator {
 		}
 		estimation = sum / nodes.size();
 		estimation *= totalSize;
-		//expLogger.writeLine(nodes.size() + "," + totalSize + "," + "future");
 		
 		if ((estimation / correction) * learnRate < requirement){
 			reached = true;
@@ -111,7 +94,6 @@ public class RequirementEstimator {
 			double exp = expectation.getExpectation(node);
 			sum += exp;
 		}
-		//expLogger.writeLine(estimation + "");
 		
 		estimation = sum;
 		
@@ -130,7 +112,6 @@ public class RequirementEstimator {
 			double exp = expectation.getExpectation(node, time);
 			sum += exp;
 		}
-		//expLogger.writeLine(estimation + "");
 		
 		estimation = sum;
 		
